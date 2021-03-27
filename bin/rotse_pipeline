@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+"""
+Run ROTSE-III pipeline on a given exposure
+"""
+
+from rotseproc.scripts import run_rotse.py
+rotse.rotse_main(rotse.parse())
+

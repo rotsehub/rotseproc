@@ -1,0 +1,19 @@
+# Default configuration for processing ROTSE-III science exposures
+name: ROTSE-III Survey
+Flavor: science
+# Heartbeat Period in seconds
+Period: 5.0
+#- Time out in seconds
+Timeout: 120.0
+# Pipeline algorithms with relevant QAs
+Pipeline: [Coaddition, Source_Extraction, Make_Subimages]
+Algorithms:
+    Coaddition:
+        QA:
+            Example_QA:
+                PARAMS: {METRIC_NORMAL_RANGE: [0., 0.], METRIC_WARN_RANGE: [0., 0.], METRIC_REF: [0.]
+    Source_Extraction:
+        QA: {}
+    Make_Subimages:
+        QA: {}
+
