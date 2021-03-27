@@ -4,7 +4,6 @@ Merge rotse qa outputs
 Only a few necessary functions included here, need to expand
 """
 from __future__ import absolute_import, division, print_function
-from desiutil.io import yamlify
 import yaml
 import json
 import numpy as np

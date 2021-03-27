@@ -37,7 +37,6 @@ def getobject(conf,log):
 def mapkeywords(kw,kwmap):
     """
     Maps the keyword in the configuration to the corresponding object
-    returned by the desispec.io module.
     e.g  Bias Image file is mapped to biasimage object... for the same keyword "BiasImage"
     """
 
@@ -61,9 +60,7 @@ def runpipeline(pl, convdict, conf):
     Args:
         pl: is a list of [pa,qas] where pa is a pipeline step and qas the corresponding
             qas for that pa
-        convdict: converted dictionary e.g : conf["IMAGE"] is the real psf file
-            but convdict["IMAGE"] is like desispec.image.Image object and so on.
-            details in setup_pipeline method below for examples.
+        convdict: converted dictionary, details in setup_pipeline method below for examples.
         conf: a configured dictionary, read from the configuration yaml file.
             e.g: conf=configdict=yaml.safe_load(open('configfile.yaml','rb'))
     """
@@ -78,86 +75,47 @@ def runpipeline(pl, convdict, conf):
     passqadict=None #- pass this dict to QAs downstream
     schemaMerger=QAMerger()
     QAresults=[] 
-    if singqa is None:
-        for s,step in enumerate(pl):
-            log.info("Starting to run step {}".format(paconf[s]["StepName"]))
-            pa=step[0]
-            pargs=mapkeywords(step[0].config["kwargs"],convdict)
-            schemaStep=schemaMerger.addPipelineStep(paconf[s]["StepName"])
-            try:
-                hb.start("Running {}".format(step[0].name))
-                oldinp=inp #-  copy for QAs that need to see earlier input
-                inp=pa(inp,**pargs)
-                if step[0].name == 'Initialize':
-                    schemaStep.addMetrics(inp[1])
-            except Exception as e:
-                log.critical("Failed to run PA {} error was {}".format(step[0].name,e),exc_info=True)
-                sys.exit("Failed to run PA {}".format(step[0].name))
-            qaresult={}
-            for qa in step[1]:
-                try:
-                    qargs=mapkeywords(qa.config["kwargs"],convdict)
-                    hb.start("Running {}".format(qa.name))
-                    qargs["dict_example"]=passqadict #- pass this to all QA downstream
-    
-                    if isinstance(inp,tuple):
-                        res=qa(inp[0],**qargs)
-                    else:
-                        res=qa(inp,**qargs)
-    
-                    if "qafile" in qargs:
-                        qawriter.write_qa(qargs["qafile"],res)
-                    log.debug("{} {}".format(qa.name,inp))
-                    qaresult[qa.name]=res
-                    schemaStep.addParams(res['PARAMS'])
-                    schemaStep.addMetrics(res['METRICS'])
-                except Exception as e:
-                    log.warning("Failed to run QA {}. Got Exception {}".format(qa.name,e),exc_info=True)
-            hb.stop("Step {} finished.".format(paconf[s]["StepName"]))
-            QAresults.append([pa.name,qaresult])
-        hb.stop("Pipeline processing finished. Serializing result")
-    else:
-        import numpy as np
-        qa=None
-        qas=[['Example_QA'],[],[]]
+    import numpy as np
+    qa=None
+    qas=[['Example_QA'],[],[]]
 
-        singleqaperpa=['Example_QA']
-        for palg in range(len(qas)):
-            if singqa in qas[palg]:
-                pa=pl[palg][0]
-                pac=paconf[palg]
-                if singqa in singleqaperpa:
-                    qa = pl[palg][1][0]
-                else:
-                    for qalg in range(len(qas[palg])):
-                        if qas[palg][qalg] == singqa:
-                            qa=pl[palg][1][qalg]
-        if qa is None:
-            log.critical("Unknown input QA... Valid QAs are: {}".format(qas))
-            sys.exit()
-
-        log.info("Starting to run step {}".format(pac["StepName"]))
-        pargs=mapkeywords(pa.config["kwargs"],convdict)
-        schemaStep=schemaMerger.addPipelineStep(pac["StepName"])
-        qaresult={}
-        try:
-            qargs=mapkeywords(qa.config["kwargs"],convdict)
-            hb.start("Running {}".format(qa.name))
-            if isinstance(inp,tuple):
-                res=qa(inp[0],**qargs)
+    singleqaperpa=['Example_QA']
+    for palg in range(len(qas)):
+        if singqa in qas[palg]:
+            pa=pl[palg][0]
+            pac=paconf[palg]
+            if singqa in singleqaperpa:
+                qa = pl[palg][1][0]
             else:
-                res=qa(inp,**qargs)
-            if "qafile" in qargs:
-                qawriter.write_qa(qargs["qafile"],res)
-            log.debug("{} {}".format(qa.name,inp))
-            schemaStep.addMetrics(res['METRICS'])
-        except Exception as e:
-            log.warning("Failed to run QA {}. Got Exception {}".format(qa.name,e),exc_info=True)
-        if len(qaresult):
-           if conf["DumpIntermediates"]:
-                f = open(pac["OutputFile"],"w")
-                f.write(yaml.dump(yamlify(qaresult)))
-                log.info("{} finished".format(qa.name))
+                for qalg in range(len(qas[palg])):
+                    if qas[palg][qalg] == singqa:
+                        qa=pl[palg][1][qalg]
+    if qa is None:
+        log.critical("Unknown input QA... Valid QAs are: {}".format(qas))
+        sys.exit()
+
+    log.info("Starting to run step {}".format(pac["StepName"]))
+    pargs=mapkeywords(pa.config["kwargs"],convdict)
+    schemaStep=schemaMerger.addPipelineStep(pac["StepName"])
+    qaresult={}
+    try:
+        qargs=mapkeywords(qa.config["kwargs"],convdict)
+        hb.start("Running {}".format(qa.name))
+        if isinstance(inp,tuple):
+            res=qa(inp[0],**qargs)
+        else:
+            res=qa(inp,**qargs)
+        if "qafile" in qargs:
+            qawriter.write_qa(qargs["qafile"],res)
+        log.debug("{} {}".format(qa.name,inp))
+        schemaStep.addMetrics(res['METRICS'])
+    except Exception as e:
+        log.warning("Failed to run QA {}. Got Exception {}".format(qa.name,e),exc_info=True)
+    if len(qaresult):
+       if conf["DumpIntermediates"]:
+            f = open(pac["OutputFile"],"w")
+            f.write(yaml.dump(yamlify(qaresult)))
+            log.info("{} finished".format(qa.name))
 
     # Merge QAs for this pipeline execution
     #if singqa is None: # Don't write merged file if running single QA

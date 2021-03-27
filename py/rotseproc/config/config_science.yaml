@@ -6,12 +6,14 @@ Period: 5.0
 #- Time out in seconds
 Timeout: 120.0
 # Pipeline algorithms with relevant QAs
-Pipeline: [Coaddition, Source_Extraction, Make_Subimages]
+Pipeline: [Find_Data, Coaddition, Source_Extraction, Make_Subimages]
 Algorithms:
-    Coaddition:
+    Find_Data:
         QA:
             Example_QA:
                 PARAMS: {METRIC_NORMAL_RANGE: [0., 0.], METRIC_WARN_RANGE: [0., 0.], METRIC_REF: [0.]
+    Coaddition:
+        QA: {}
     Source_Extraction:
         QA: {}
     Make_Subimages:

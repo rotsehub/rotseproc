@@ -1,5 +1,5 @@
 """ 
-Monitoring algorithms for ROTSE-III pipeline
+Monitoring algorithms for the ROTSE-III pipeline
 """
 
 import os, sys
@@ -28,6 +28,7 @@ def get_inputs(*args,**kwargs):
     else: inputs["qafig"]=None
 
     inputs['night']=kwargs['Night']
+    inputs['field']=kwargs['Field']
     inputs['telescope']=kwargs['Telescope']
 
     return inputs
@@ -59,11 +60,7 @@ class Example_QA(MonitoringAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        if kwargs['singleqa'] == 'Example_QA':
-            night = kwargs['Night']
-            telescope = kwargs['Telescope']
-            image = [] # Create image object from fits file
-        else: image = args[0]
+        image = args[0]
         inputs = get_inputs(*args,**kwargs)
 
         return self.run_qa(image, inputs)

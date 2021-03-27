@@ -9,11 +9,12 @@ class Config(object):
     A class to generate ROTSE configurations for a given exposure. 
     expand_config will expand out to full format as needed by rotse.setup
     """
-    def __init__(self, configfile, night, telescope, flavor, singqa, datadir=None, outdir=None, plots=False):
+    def __init__(self, configfile, night, field, telescope, flavor, datadir=None, outdir=None, plots=False):
         """
         configfile: ROTSE-III configuration file (e.g. rotseproc/config/config_science.yaml)
-        night: night for the data to process (e.g. '20130101')
-        telescope: instrument to process (e.g. '3b')
+        night: night for the data to process (e.g. 20130101)
+        field: observed field on the sky (e.g. sks0246+3652)
+        telescope: instrument to process (e.g. 3b)
         Note:
         datadir and outdir: if not None, overrides the standard ROTSE directories
         """
@@ -21,8 +22,8 @@ class Config(object):
             self.conf = yaml.safe_load(f)
             f.close()
         self.night = night
+        self.field = field
         self.telescope = telescope
-        self.singqa = singqa
         self.datadir = datadir 
         self.outdir = outdir
         self.flavor = self.conf["Flavor"]
@@ -79,16 +80,17 @@ class Config(object):
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
 
-        paopt_coadd = {'Night':self.night, 'Telescope':self.telescope}
+        paopt_data = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
+        paopt_coadd = {}
         paopt_extract = {}
         paopt_subimage = {}
 
         paopts={}
-        defList={
-            'Coaddition': paopt_coadd,
-            'Extract_Sources': paopt_extract,
-            'Make_Subimages': paopt_subimage
-        }
+        defList={'Find_Data': paopt_data,
+                 'Coaddition': paopt_coadd,
+                 'Extract_Sources': paopt_extract,
+                 'Make_Subimages': paopt_subimage
+                }
 
         def getPAConfigFromFile(PA,algs):
             def mergeDicts(source,dest):
@@ -118,7 +120,7 @@ class Config(object):
         """
         dump the PA outputs to respective files
         """
-        pafilemap = {'Coaddition': 'coadd', 'Extract_Sources': 'cobj', 'Make_Subimages': 'sub'}
+        pafilemap = {'Find_Data':'images', 'Coaddition':'coadd', 'Extract_Sources':'cobj', 'Make_Subimages':'sub'}
         if paname in pafilemap:
             filetype=pafilemap[paname]
         else:
@@ -188,7 +190,8 @@ class Config(object):
         """
         Specify the filenames: json and png of the pa level qa files"
         """
-        filemap={'Coaddition': 'coadd',
+        filemap={'Find_Data': 'images',
+                 'Coaddition': 'coadd',
                  'Extract_Sources': 'extract',
                  'Make_Subimages': 'subimage'
                  }
@@ -231,6 +234,7 @@ class Config(object):
 
         outconfig={}
         outconfig['Night'] = self.night
+        outconfig['Field'] = self.field
         outconfig['Telescope'] = self.telescope
         outconfig['Flavor'] = self.flavor
         outconfig['Period'] = self.period

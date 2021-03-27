@@ -9,7 +9,7 @@ Latest revision July 2021
 
 Running pipeline:
 
-    rotse_pipeline -i config_science.yaml -n 20130101
+    rotse_pipeline -i config_science.yaml -f sks0246+3652
 
 This requires having necessary input files and setting the following environment variables:
 
@@ -44,13 +44,13 @@ def parse():
         Should have either a pre existing config file, or need to generate one using config module
     """
     parser = argparse.ArgumentParser(description="Run pipeline on ROTSE-III data")
-    parser.add_argument("-i", "--config_file", type=str, required=False, help="yaml file containing config dictionary", dest="config")
-    parser.add_argument("-n", "--night", type=str, required=False, help="night for the data")
+    parser.add_argument("-i", "--config_file", type=str, required=True, help="yaml file containing config dictionary", dest="config")
+    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="config")
+    parser.add_argument("-n", "--night", type=str, required=False, help="night of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
     parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
     parser.add_argument("--outdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
     parser.add_argument("--tempdir", type=str, required=False, default= None, help="template directory, overrides $ROTSE_TEMPLATE")
-    parser.add_argument("--singleQA", type=str, required=False, help="choose one QA to run", default=None, dest="singqa")
     parser.add_argument("-p", nargs='?', default='noplots', help="generate static plots", dest='plots')
     parser.add_argument("--loglvl", default=20, type=int, help="log level (0=verbose, 50=Critical)")
     args = parser.parse_args()
@@ -85,7 +85,7 @@ def rotse_main(args=None):
         log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):
             if "yaml" in args.config:
-                config = config.Config(args.config, args.night, args.telescope, args.singqa, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
+                config = config.Config(args.config, args.night, args.field, args.telescope, args.singqa, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
                 configdict = config.expand_config()
             else:
                 log.critical("Can't open configuration file {}".format(args.config))
