@@ -1,6 +1,7 @@
 # Default configuration for processing ROTSE-III science exposures
 name: ROTSE-III Survey
 Flavor: science
+Program: supernova
 # Heartbeat Period in seconds
 Period: 5.0
 #- Time out in seconds
