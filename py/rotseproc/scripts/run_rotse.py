@@ -45,8 +45,9 @@ def parse():
     parser.add_argument("-n", "--night", type=str, nargs='+', required=True, help="night(s) of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
     parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
-    parser.add_argument("--outdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
-    parser.add_argument("--tempdir", type=str, required=False, default= None, help="template directory, overrides $ROTSE_TEMPLATE")
+    parser.add_argument("--reduxdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
+    parser.add_argument("--outdir", type=str, required=False, default=".", help="reduxdir/outdir directory")
+    parser.add_argument("--tempdir", type=str, required=False, default=None, help="template directory, overrides $ROTSE_TEMPLATE")
     parser.add_argument("-p", nargs='?', default='noplots', help="generate static plots", dest='plots')
     parser.add_argument("--loglvl", default=20, type=int, help="log level (0=verbose, 50=Critical)")
     args = parser.parse_args()
@@ -71,12 +72,14 @@ def rotse_main(args=None):
                 sys.exit("must set $ROTSE_DATA environment variable or provide rawdata_dir")
             datadir = os.getenv('ROTSE_DATA')
 
-        if args.outdir:
-            outdir = args.outdir
+        if args.reduxdir:
+            reduxdir = args.reduxdir
         else:
             if 'ROTSE_REDUX' not in os.environ:
                 sys.exit("must set $ROTSE_REDUX environment variable or provide specprod_dir")
-            outdir = os.getenv('ROTSE_REDUX')
+            reduxdir = os.getenv('ROTSE_REDUX')
+
+        outdir = os.path.join(reduxdir, args.outdir)
 
         log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):

@@ -28,6 +28,9 @@ class Config(object):
         self.outdir = outdir
         self.flavor = self.conf["Flavor"]
         self.program = self.conf["Program"]
+        self.dumpintermediates = self.conf["DumpIntermediates"]
+        self.datadir = datadir
+        self.outdir = outdir
 
         self.plotconf = None
         self.hardplots = False
@@ -80,8 +83,12 @@ class Config(object):
         """
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
+        outdir = None
+        if self.dumpintermediates:
+            outdir = self.outdir
 
-        paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field, 'Program':self.program}
+        paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
+                      'Program':self.program, 'datadir':self.datadir, 'outdir':outdir}
         paopt_coadd = {'Night':self.night}
         paopt_extract = {}
         paopt_subimage = {}
@@ -121,7 +128,7 @@ class Config(object):
         """
         dump the PA outputs to respective files
         """
-        pafilemap = {'Find_Data':'images', 'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
+        pafilemap = {'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
         if paname in pafilemap:
             filetype=pafilemap[paname]
         else:

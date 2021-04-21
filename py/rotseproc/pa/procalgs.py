@@ -28,23 +28,32 @@ class Find_Data(pas.PipelineAlg):
         if not self.is_compatible(type(args[0])):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
+        outdir=None
+        if "outdir" in kwargs:
+            outdir=kwargs["outdir"]
+        datadir=kwargs["datadir"]
 
         night = kwargs['Night']
         telescope = kwargs['Telescope']
         field = kwargs['Field']
         program = kwargs['Program']
 
-        return self.run_pa(night, telescope, field, program)
+        return self.run_pa(night, telescope, field, program, datadir, outdir)
 
-    def run_pa(self, night, telescope, field, program):
+    def run_pa(self, night, telescope, field, program, datadir, outdir):
         # Find supernova data
         if program == 'supernova':
-            from rotseproc.pa.palib import find_supernova_data
+            from rotseproc.io.preproc import find_supernova_data
             log.info("Finding supernova data for {} from {} to {}".format(field,night[0],night[1]))
-            images, prods = find_supernova_data(night, telescope, field)
+            images, prods = find_supernova_data(night, telescope, field, datadir)
         else:
             log.critical("Program {} is not valid, can't find data...".format(program))
             sys.exit()
+
+        # Copy preprocessed images to output directory
+        if outdir is not None:
+            from rotseproc.io.preproc import copy_preproc
+            copy_preproc(outdir, images, prods)
 
         return (images, prods)
 
