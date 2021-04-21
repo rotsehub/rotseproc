@@ -32,12 +32,8 @@ Optional arguments:
     -p (including path to plotting configuration file) : generate configured plots
     -p (only using -p with no configuration file) : generate hardcoded plots
 """
-
 from __future__ import absolute_import, division, print_function
-
-import os, sys
 import argparse
-from rotseproc import rotse, rlogger, config
 
 def parse():
     """
@@ -45,7 +41,7 @@ def parse():
     """
     parser = argparse.ArgumentParser(description="Run pipeline on ROTSE-III data")
     parser.add_argument("-i", "--config_file", type=str, required=True, help="yaml file containing config dictionary", dest="config")
-    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="config")
+    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
     parser.add_argument("-n", "--night", type=str, required=False, help="night of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
     parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
@@ -57,8 +53,8 @@ def parse():
     return args
 
 def rotse_main(args=None):
-
-    from rotseproc import rotse, logger, config
+    import os, sys
+    from rotseproc import rotse, rlogger, rotse_config
 
     if args is None:
         args = parse()
@@ -85,7 +81,7 @@ def rotse_main(args=None):
         log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):
             if "yaml" in args.config:
-                config = config.Config(args.config, args.night, args.field, args.telescope, args.singqa, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
+                config = rotse_config.Config(args.config, args.night, args.field, args.telescope, datadir=datadir, outdir=outdir, tempdir=args.tempdir, plots=args.plots)
                 configdict = config.expand_config()
             else:
                 log.critical("Can't open configuration file {}".format(args.config))

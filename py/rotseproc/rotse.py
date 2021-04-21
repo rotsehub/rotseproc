@@ -11,7 +11,7 @@ import astropy.io.fits as fits
 from rotseproc import rlogger
 from rotseproc import heartbeat as HB
 from rotseproc.merger import QAMerger
-from rotseproc import procalgs
+from rotseproc.pa import procalgs
 
 def get_image_info(night, telescope):
     """

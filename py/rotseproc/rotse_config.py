@@ -2,14 +2,14 @@ import os, sys
 import json
 import yaml
 import numpy as np
-from rotseproc import exceptions rlogger
+from rotseproc import exceptions, rlogger
 
 class Config(object):
     """ 
     A class to generate ROTSE configurations for a given exposure. 
     expand_config will expand out to full format as needed by rotse.setup
     """
-    def __init__(self, configfile, night, field, telescope, flavor, datadir=None, outdir=None, plots=False):
+    def __init__(self, configfile, night, field, telescope, datadir=None, outdir=None, tempdir=None, plots=False):
         """
         configfile: ROTSE-III configuration file (e.g. rotseproc/config/config_science.yaml)
         night: night for the data to process (e.g. 20130101)
@@ -27,6 +27,7 @@ class Config(object):
         self.datadir = datadir 
         self.outdir = outdir
         self.flavor = self.conf["Flavor"]
+        self.program = self.conf["Program"]
 
         self.plotconf = None
         self.hardplots = False
@@ -162,9 +163,6 @@ class Config(object):
                 pa_yaml = PA.upper()
                 params=self._qaparams(qa)
                 qaopts[qa]={'night' : self.night, 'telescope' : self.telescope}
-                if self.singqa is not None:
-                    qaopts[qa]['datadir']=self.datadir
-                    qaopts[qa]['outdir']=self.outdir
 
                 if self.reference != None:
                     refkey=qaopts[qa]['refKey']
@@ -225,7 +223,6 @@ class Config(object):
         config: rotseproc.config.Config object
         """
         self.log.debug("Building Full Configuration")
-        self.debuglevel = self.conf["Debuglevel"]
         self.period = self.conf["Period"]
         self.timeout = self.conf["Timeout"]
 
@@ -250,26 +247,24 @@ class Config(object):
             pipe['StepName']=PA
             pipeline.append(pipe)
 
-        outconfig['singleqa'] = self.singqa
         outconfig['Timeout'] = self.timeout
         outconfig['PlotConfig'] = self.plotconf
 
         #- Check if all the files exist for this configuraion
-        check_config(outconfig,self.singqa)
+        check_config(outconfig)
         return outconfig
 
-def check_config(outconfig,singqa):
+def check_config(outconfig):
     """
     Given the expanded config, check for all possible file existence etc...
     """
-    if singqa is None:
-        rlog = rlogger.rotseLogger(name="RotseConfig")
-        log = rlog.getlog()
-        log.info("Checking if all the necessary files exist.")
+    rlog = rlogger.rotseLogger(name="RotseConfig")
+    log = rlog.getlog()
+    log.info("Checking if all the necessary files exist.")
 
-        # Perform necessary checks
+    # Perform necessary checks
 
-        log.info("All necessary files exist for {} configuration.".format(outconfig["Flavor"]))
+    log.info("All necessary files exist for {} configuration.".format(outconfig["Flavor"]))
 
     return 
 

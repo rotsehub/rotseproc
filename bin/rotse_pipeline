@@ -3,6 +3,6 @@
 Run ROTSE-III pipeline on given exposures
 """
 
-from rotseproc.scripts import run_rotse.py
-rotse.rotse_main(rotse.parse())
+from rotseproc.scripts import run_rotse
+run_rotse.rotse_main(run_rotse.parse())
 

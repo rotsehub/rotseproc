@@ -12,7 +12,7 @@ Algorithms:
     Find_Data:
         QA:
             Example_QA:
-                PARAMS: {METRIC_NORMAL_RANGE: [0., 0.], METRIC_WARN_RANGE: [0., 0.], METRIC_REF: [0.]
+                PARAMS: {METRIC_NORMAL_RANGE: [0., 0.], METRIC_WARN_RANGE: [0., 0.], METRIC_REF: [0.]}
     Coaddition:
         QA: {}
     Source_Extraction:

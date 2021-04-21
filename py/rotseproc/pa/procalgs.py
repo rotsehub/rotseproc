@@ -4,7 +4,7 @@ ROTSE-III Pipeline Algorithms
 import os, sys
 import numpy as np
 from astropy.io import fits 
-from rotseproc import pas
+from rotseproc.pa import pas
 from rotseproc import exceptions, rlogger
 
 rlog = rlogger.rotseLogger("ROTSE-III",20)
