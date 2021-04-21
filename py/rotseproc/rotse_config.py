@@ -81,12 +81,14 @@ class Config(object):
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
 
-        paopt_coadd = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
-        paopt_extract = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
-        paopt_subimage = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
+        paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field, 'Program':self.program}
+        paopt_coadd = {'Night':self.night}
+        paopt_extract = {}
+        paopt_subimage = {}
 
         paopts={}
-        defList={'Coaddition': paopt_coadd,
+        defList={'Find_Data': paopt_find,
+                 'Coaddition': paopt_coadd,
                  'Source_Extraction': paopt_extract,
                  'Make_Subimages': paopt_subimage
                 }
@@ -119,7 +121,7 @@ class Config(object):
         """
         dump the PA outputs to respective files
         """
-        pafilemap = {'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
+        pafilemap = {'Find_Data':'images', 'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
         if paname in pafilemap:
             filetype=pafilemap[paname]
         else:
@@ -186,7 +188,8 @@ class Config(object):
         """
         Specify the filenames: json and png of the pa level qa files"
         """
-        filemap={'Coaddition': 'coadd',
+        filemap={'Find_Data': 'images',
+                 'Coaddition': 'coadd',
                  'Source_Extraction': 'extract',
                  'Make_Subimages': 'subimage'
                  }
@@ -250,7 +253,7 @@ class Config(object):
         outconfig['PlotConfig'] = self.plotconf
 
         #- Check if all the files exist for this configuraion
-        check_config(outconfig)
+       # check_config(outconfig)
         return outconfig
 
 def check_config(outconfig):

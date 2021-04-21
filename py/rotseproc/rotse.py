@@ -63,9 +63,7 @@ def runpipeline(pl, convdict, conf):
     log=rlog.getlog()
     hb=HB.Heartbeat(log,conf["Period"],conf["Timeout"])
 
-    inp_images=convdict["images"]
-    inp_prods=convdict["prods"]
-    inp=(inp_images,inp_prods)
+    inp=None
     paconf=conf["Pipeline"]
     passqadict=None #- pass this dict to QAs downstream
     schemaMerger=QAMerger(convdict)
@@ -152,37 +150,12 @@ def setup_pipeline(config):
     if "basePath" in config:
         basePath=config["basePath"]
 
-    year = night[:2]
-    month = night[2:4]
-    day = night[4:]
-
-    datapath = os.path.join(os.environ['ROTSE_DATA'], telescope, year, month, day)
-    imagedir = os.path.join(datapath, 'image')
-    proddir = os.path.join(datapath, 'prod')
-
-    images=[]
-    for i in os.listdir(imagedir):
-        imagename = os.path.join(imagedir, i)
-        hbeat.start("Reading image file {}".format(imagename))
-        image = fits.open(imagename)
-        images.append(image)
-
-    prods=[]
-    for p in os.listdir(proddir):
-        prodname = os.path.join(proddir, p)
-        hbeat.start("Reading prod file {}".format(prodname))
-        prod = fits.open(prodname)
-        prods.append(prod)
-
     convdict={}
 
     if dumpintermediates:
         convdict["DumpIntermediates"]=dumpintermediates
-   
-    hbeat.stop("Finished reading all static files")
 
-    convdict["images"] = images
-    convdict["prods"] = prods
+    images=None
     pipeline=[]
     for step in config["Pipeline"]:
         pa=getobject(step["PA"],log)
