@@ -81,15 +81,13 @@ class Config(object):
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
 
-        paopt_data = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
-        paopt_coadd = {}
-        paopt_extract = {}
-        paopt_subimage = {}
+        paopt_coadd = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
+        paopt_extract = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
+        paopt_subimage = {'Night':self.night, 'Field':self.field, 'Telescope':self.telescope}
 
         paopts={}
-        defList={'Find_Data': paopt_data,
-                 'Coaddition': paopt_coadd,
-                 'Extract_Sources': paopt_extract,
+        defList={'Coaddition': paopt_coadd,
+                 'Source_Extraction': paopt_extract,
                  'Make_Subimages': paopt_subimage
                 }
 
@@ -121,7 +119,7 @@ class Config(object):
         """
         dump the PA outputs to respective files
         """
-        pafilemap = {'Find_Data':'images', 'Coaddition':'coadd', 'Extract_Sources':'cobj', 'Make_Subimages':'sub'}
+        pafilemap = {'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
         if paname in pafilemap:
             filetype=pafilemap[paname]
         else:
@@ -162,7 +160,7 @@ class Config(object):
             for qa in self.qalist[PA]: #- individual QA for that PA
                 pa_yaml = PA.upper()
                 params=self._qaparams(qa)
-                qaopts[qa]={'night' : self.night, 'telescope' : self.telescope}
+                qaopts[qa]={'night' : self.night, 'telescope' : self.telescope, 'param': params}
 
                 if self.reference != None:
                     refkey=qaopts[qa]['refKey']
@@ -188,9 +186,8 @@ class Config(object):
         """
         Specify the filenames: json and png of the pa level qa files"
         """
-        filemap={'Find_Data': 'images',
-                 'Coaddition': 'coadd',
-                 'Extract_Sources': 'extract',
+        filemap={'Coaddition': 'coadd',
+                 'Source_Extraction': 'extract',
                  'Make_Subimages': 'subimage'
                  }
 
@@ -234,6 +231,7 @@ class Config(object):
         outconfig['Field'] = self.field
         outconfig['Telescope'] = self.telescope
         outconfig['Flavor'] = self.flavor
+        outconfig['Program'] = self.program
         outconfig['Period'] = self.period
 
         pipeline = []
@@ -247,6 +245,7 @@ class Config(object):
             pipe['StepName']=PA
             pipeline.append(pipe)
 
+        outconfig['Pipeline'] = pipeline
         outconfig['Timeout'] = self.timeout
         outconfig['PlotConfig'] = self.plotconf
 
@@ -285,7 +284,7 @@ class Palist(object):
 
     def _palist(self):
         palist=self.thislist
-        self.pamodule='rotseproc.procalgs'
+        self.pamodule='rotseproc.pa.procalgs'
         return palist       
 
     def _qalist(self):

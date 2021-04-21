@@ -37,12 +37,9 @@ def transferKEY(myDict, KeyHead, old_task, new_task, keyList):
     return myDict
 
 class QAMerger:
-    def __init__(self, night, telescope, flavor, convdict):
-        self.__night=night
-        self.__expid=telescope
-        self.__flavor=flavor
-
-        self.__schema={'NIGHT':night, 'TELESCOPE':telescope, 'FLAVOR':flavor, 'PIPELINE_STEPS':self.__stepsArr}
+    def __init__(self, convdict):
+        self.__stepsArr=[]
+        self.__schema={'PIPELINE_STEPS':self.__stepsArr}
 
     class Rotse_Step:
         def __init__(self,paName,paramsDict,metricsDict):

@@ -13,14 +13,8 @@ from rotseproc import heartbeat as HB
 from rotseproc.merger import QAMerger
 from rotseproc.pa import procalgs
 
-def get_image_info(night, telescope):
-    """
-    Get night and telescope info to find data
-    """
-    return (night, telescope)
-
 def getobject(conf,log):
-    rlog = rlogger("ROTSE-III",20)
+    rlog = rlogger.rotseLogger("ROTSE-III",20)
     log = rlog.getlog()
     log.debug("Running for {} {} {}".format(conf["ModuleName"],conf["ClassName"],conf))
     try:
@@ -65,69 +59,68 @@ def runpipeline(pl, convdict, conf):
             e.g: conf=configdict=yaml.safe_load(open('configfile.yaml','rb'))
     """
 
-    rlog=logger.rotseLogger()
+    rlog=rlogger.rotseLogger()
     log=rlog.getlog()
     hb=HB.Heartbeat(log,conf["Period"],conf["Timeout"])
 
-    inp=convdict["rawimage"]
-    singqa=conf["singleqa"]
-    paconf=conf["PipeLine"]
+    inp_images=convdict["images"]
+    inp_prods=convdict["prods"]
+    inp=(inp_images,inp_prods)
+    paconf=conf["Pipeline"]
     passqadict=None #- pass this dict to QAs downstream
-    schemaMerger=QAMerger()
+    schemaMerger=QAMerger(convdict)
     QAresults=[] 
     import numpy as np
     qa=None
     qas=[['Example_QA'],[],[]]
 
-    singleqaperpa=['Example_QA']
-    for palg in range(len(qas)):
-        if singqa in qas[palg]:
-            pa=pl[palg][0]
-            pac=paconf[palg]
-            if singqa in singleqaperpa:
-                qa = pl[palg][1][0]
-            else:
-                for qalg in range(len(qas[palg])):
-                    if qas[palg][qalg] == singqa:
-                        qa=pl[palg][1][qalg]
-    if qa is None:
-        log.critical("Unknown input QA... Valid QAs are: {}".format(qas))
-        sys.exit()
+    for s,step in enumerate(pl):
+        log.info("Starting to run step {}".format(paconf[s]["StepName"]))
+        pa=step[0]
+        pargs=mapkeywords(step[0].config["kwargs"],convdict)
+        schemaStep=schemaMerger.addPipelineStep(paconf[s]["StepName"])
+        try:
+            hb.start("Running {}".format(step[0].name))
+            oldinp=inp #-  copy for QAs that need to see earlier input
+            inp=pa(inp,**pargs)
+        except Exception as e:
+            log.critical("Failed to run PA {} error was {}".format(step[0].name,e),exc_info=True)
+            sys.exit("Failed to run PA {}".format(step[0].name))
+        qaresult={}
+        for qa in step[1]:
+            try:
+                qargs=mapkeywords(qa.config["kwargs"],convdict)
+                hb.start("Running {}".format(qa.name))
+                qargs["dict_countbins"]=passqadict #- pass this to all QA downstream
 
-    log.info("Starting to run step {}".format(pac["StepName"]))
-    pargs=mapkeywords(pa.config["kwargs"],convdict)
-    schemaStep=schemaMerger.addPipelineStep(pac["StepName"])
-    qaresult={}
-    try:
-        qargs=mapkeywords(qa.config["kwargs"],convdict)
-        hb.start("Running {}".format(qa.name))
-        if isinstance(inp,tuple):
-            res=qa(inp[0],**qargs)
-        else:
-            res=qa(inp,**qargs)
-        if "qafile" in qargs:
-            qawriter.write_qa(qargs["qafile"],res)
-        log.debug("{} {}".format(qa.name,inp))
-        schemaStep.addMetrics(res['METRICS'])
-    except Exception as e:
-        log.warning("Failed to run QA {}. Got Exception {}".format(qa.name,e),exc_info=True)
-    if len(qaresult):
-       if conf["DumpIntermediates"]:
-            f = open(pac["OutputFile"],"w")
-            f.write(yaml.dump(yamlify(qaresult)))
-            log.info("{} finished".format(qa.name))
+                if isinstance(inp,tuple):
+                    res=qa(inp[0],**qargs)
+                else:
+                    res=qa(inp,**qargs)
 
-    # Merge QAs for this pipeline execution
-    #if singqa is None: # Don't write merged file if running single QA
-    #    log.debug("Dumping mergedQAs")
-    #    specprod_dir=os.environ['ROTSE_REDUX'] if 'ROTSE_REDUX' in os.environ else ""
-    #    destFile=None
-    #    schemaMerger.writeTojsonFile(destFile)
-    #    log.info("Wrote merged QA file {}".format(destFile))
-    #    if isinstance(inp,tuple):
-    #       return inp[0]
-    #    else:
-    #       return inp
+                if "qafile" in qargs:
+                    qawriter.write_qa_ql(qargs["qafile"],res)
+                log.debug("{} {}".format(qa.name,inp))
+                qaresult[qa.name]=res
+                schemaStep.addParams(res['PARAMS'])
+                schemaStep.addMetrics(res['METRICS'])
+            except Exception as e:
+                log.warning("Failed to run QA {}. Got Exception {}".format(qa.name,e),exc_info=True)
+        hb.stop("Step {} finished.".format(paconf[s]["StepName"]))
+        QAresults.append([pa.name,qaresult])
+    hb.stop("Pipeline processing finished. Serializing result")
+
+
+  #  # Merge QAs for this pipeline execution
+  #  log.debug("Dumping mergedQAs")
+  #  specprod_dir=os.environ['ROTSE_REDUX'] if 'ROTSE_REDUX' in os.environ else ""
+  #  destFile=None
+  #  schemaMerger.writeTojsonFile(destFile)
+  #  log.info("Wrote merged QA file {}".format(destFile))
+  #  if isinstance(inp,tuple):
+  #     return inp[0]
+  #  else:
+  #     return inp
 
 #- Setup pipeline from configuration
 
@@ -142,20 +135,15 @@ def setup_pipeline(config):
     if config is None:
         return None
     log.debug("Reading Configuration")
+    night=config["Night"]
+    telescope=config["Telescope"]
     flavor=config["Flavor"]
-    if "Night" not in config:
+    program=config["Program"]
+    if night is None:
         log.critical("Config is missing \"Night\" key.")
         sys.exit("Missing \"Night\" key.")
-    if "Telescope" not in config:
-        log.critical("Config is missing \"Telescope\" key.")
-        sys.exit("Missing \"Telescope\" key.")
-    inpname=config["Image"]
-    debuglevel=20
-    if "DebugLevel" in config:
-        debuglevel=config["DebugLevel"]
-        log.setLevel(debuglevel)
     hbeat=HB.Heartbeat(log,config["Period"],config["Timeout"])
-    if config["Timeout"]> 200.0:
+    if config["Timeout"] > 200.0:
         log.warning("Heartbeat timeout exceeding 200.0 seconds")
     dumpintermediates=False
     if "DumpIntermediates" in config:
@@ -164,9 +152,27 @@ def setup_pipeline(config):
     if "basePath" in config:
         basePath=config["basePath"]
 
-    hbeat.start("Reading input file {}".format(inpname))
-    inp=fits.open(inpname) #- reading raw image directly from astropy.io.fits
-    hbeat.start("Reading fiberMap file {}".format(fibname))
+    year = night[:2]
+    month = night[2:4]
+    day = night[4:]
+
+    datapath = os.path.join(os.environ['ROTSE_DATA'], telescope, year, month, day)
+    imagedir = os.path.join(datapath, 'image')
+    proddir = os.path.join(datapath, 'prod')
+
+    images=[]
+    for i in os.listdir(imagedir):
+        imagename = os.path.join(imagedir, i)
+        hbeat.start("Reading image file {}".format(imagename))
+        image = fits.open(imagename)
+        images.append(image)
+
+    prods=[]
+    for p in os.listdir(proddir):
+        prodname = os.path.join(proddir, p)
+        hbeat.start("Reading prod file {}".format(prodname))
+        prod = fits.open(prodname)
+        prods.append(prod)
 
     convdict={}
 
@@ -175,14 +181,14 @@ def setup_pipeline(config):
    
     hbeat.stop("Finished reading all static files")
 
-    img=inp
-    convdict["image"]=img
+    convdict["images"] = images
+    convdict["prods"] = prods
     pipeline=[]
-    for step in config["PipeLine"]:
+    for step in config["Pipeline"]:
         pa=getobject(step["PA"],log)
         if len(pipeline) == 0:
-            if not pa.is_compatible(type(img)):
-                log.critical("Pipeline configuration is incorrect! check configuration {} {}".format(img,pa.is_compatible(img)))
+            if not pa.is_compatible(type(images)):
+                log.critical("Pipeline configuration is incorrect! check configuration {} {}".format(images,pa.is_compatible(images)))
                 sys.exit("Wrong pipeline configuration")
         else:
             if not pa.is_compatible(pipeline[-1][0].get_output_type()):

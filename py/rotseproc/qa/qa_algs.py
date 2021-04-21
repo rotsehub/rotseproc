@@ -6,8 +6,8 @@ import os, sys
 import numpy as np
 import datetime
 import rotseproc.qa.qa_plots as plot
-from astropy.io.fits import fits
-from rotseproc.qas import MonitoringAlg, QASeverity
+from astropy.io import fits
+from rotseproc.qa.qas import MonitoringAlg, QASeverity
 from rotseproc import exceptions, rlogger
 from astropy.time import Time
 from rotseproc.qa import qalib
