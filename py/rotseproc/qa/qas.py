@@ -36,10 +36,7 @@ class MonitoringAlg:
 
         reskey="RESULT"
         QARESULTKEY="QA_STATUS"
-        if res['FLAVOR'] == 'science':
-           REFNAME = cargs["RESULTKEY"]+'_'+format(res['PROGRAM']).upper()+'_REF' # Get the REF name from cargs
-        else:
-           REFNAME = cargs["RESULTKEY"]+'_REF'
+        REFNAME = cargs["RESULTKEY"]+'_REF'
 
         NORM_range = cargs["RESULTKEY"]+'_NORMAL_RANGE'
         WARN_range = cargs["RESULTKEY"]+'_WARN_RANGE'
@@ -70,7 +67,7 @@ class MonitoringAlg:
 
                 refval=params[REFNAME]
 
-                if len(refval) ==1:
+                if len(refval) == 1:
                     refval = refval[0]
 
                 refval = np.asarray(refval)

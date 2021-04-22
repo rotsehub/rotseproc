@@ -169,7 +169,7 @@ class Config(object):
             for qa in self.qalist[PA]: #- individual QA for that PA
                 pa_yaml = PA.upper()
                 params=self._qaparams(qa)
-                qaopts[qa]={'night' : self.night, 'telescope' : self.telescope, 'param': params}
+                qaopts[qa]={'night':self.night, 'telescope':self.telescope, 'flavor':self.flavor, 'program':self.program, 'param':params}
 
                 if self.reference != None:
                     refkey=qaopts[qa]['refKey']
@@ -214,7 +214,7 @@ class Config(object):
         """
         Specify the filenames: json and png for the given qa output
         """
-        filemap={'Example_QA': 'qa_output'
+        filemap={'Get_RMS': 'getrms'
                  }
 
         if qaname in filemap:

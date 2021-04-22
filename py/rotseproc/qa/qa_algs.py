@@ -21,35 +21,47 @@ def get_inputs(*args,**kwargs):
     """
     inputs={}
 
+    if "paname" in kwargs: inputs["paname"] = kwargs["paname"]
+    else: inputs["paname"]=None
+
+    if "flavor" in kwargs: inputs["flavor"] = kwargs["flavor"]
+    else: inputs["flavor"]=None
+
+    if "program" in kwargs: inputs["program"] = kwargs["program"]
+    else: inputs["program"]=None
+
     if "qafile" in kwargs: inputs["qafile"] = kwargs["qafile"]
     else: inputs["qafile"]=None
 
     if "qafig" in kwargs: inputs["qafig"]=kwargs["qafig"]
     else: inputs["qafig"]=None
 
-    inputs['night']=kwargs['Night']
-    inputs['field']=kwargs['Field']
-    inputs['telescope']=kwargs['Telescope']
+    if "param" in kwargs: inputs["param"]=kwargs["param"]
+    else: inputs["param"]=None
+
+    if "refmetrics" in kwargs: inputs["refmetrics"]=kwargs["refmetrics"]
+    else: inputs["refmetrics"]=None
 
     return inputs
 
-class Example_QA(MonitoringAlg):
+class Get_RMS(MonitoringAlg):
     def __init__(self, name, config, logger=None):
         if name is None or name.strip() == "":
-            name="METRIC"
+            name="Get_RMS"
         kwargs=config['kwargs']
         parms=kwargs['param']
-        key=kwargs['refKey'] if 'refKey' in kwargs else "METRIC"
-        status=kwargs['statKey'] if 'statKey' in kwargs else "METRIC_STATUS"
+        key=kwargs['refKey'] if 'refKey' in kwargs else "NOISE"
+        status=kwargs['statKey'] if 'statKey' in kwargs else "NOISE_STATUS"
         kwargs["RESULTKEY"]=key
         kwargs["QASTATUSKEY"]=status
         if "ReferenceMetrics" in kwargs:
             r=kwargs["ReferenceMetrics"]
             if key in r:
                 kwargs["REFERENCE"]=r[key]
-        if "METRIC_WARN_RANGE" in parms and "METRIC_NORMAL_RANGE" in parms:
-            kwargs["RANGES"]=[(np.asarray(parms["METRIC_WARN_RANGE"]),QASeverity.WARNING),
-                              (np.asarray(parms["METRIC_NORMAL_RANGE"]),QASeverity.NORMAL)]
+        if "NOISE_WARN_RANGE" in parms and "NOISE_NORMAL_RANGE" in parms:
+            kwargs["RANGES"]=[(np.asarray(parms["NOISE_WARN_RANGE"]),QASeverity.WARNING),
+                              (np.asarray(parms["NOISE_NORMAL_RANGE"]),QASeverity.NORMAL)]
+        im = fits.hdu.hdulist.HDUList
         MonitoringAlg.__init__(self,name,im,config,logger)
     def run(self, *args, **kwargs):
         if len(args) == 0 :
@@ -66,28 +78,28 @@ class Example_QA(MonitoringAlg):
         return self.run_qa(image, inputs)
 
     def run_qa(self, image, inputs):
-        night = inputs['night']
-        telescope = inputs['telescope']
-        qafile = inputs['qafile']
-        qafig = inputs['qafig']
+        paname = inputs['paname']
+        flavor = inputs['flavor']
+        program = inputs['program']
         param = inputs['param']
         refmetrics = inputs['refmetrics']
         
         #- QA dictionary 
         retval = {}
-        retval["PANAME" ] = paname
+        retval["PANAME"] = paname
+        retval["FLAVOR"] = flavor
+        retval["PROGRAM"] = program
         retval["QATIME"] = datetime.datetime.now().isoformat()
         kwargs = self.config['kwargs']
-        retval["NIGHT"] = night = image.meta["NIGHT"]
 
         if param is None:
                 log.critical("No parameter is found for this QA")
                 sys.exit("Update the configuration file for the parameters")
 
-        # Calculate metrics
-        metric = []
+        # Calculate noise
+        noise = 0.
 
-        retval["METRICS"] = {"METRIC":metric}
+        retval["METRICS"] = {"NOISE":noise}
         retval["PARAMS"] = param
 
         return retval

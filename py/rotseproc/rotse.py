@@ -70,7 +70,7 @@ def runpipeline(pl, convdict, conf):
     QAresults=[] 
     import numpy as np
     qa=None
-    qas=[['Example_QA'],[],[]]
+    qas=[['Get_RMS'],[],[]]
 
     for s,step in enumerate(pl):
         log.info("Starting to run step {}".format(paconf[s]["StepName"]))
