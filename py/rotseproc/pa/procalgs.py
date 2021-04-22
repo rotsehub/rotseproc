@@ -41,11 +41,14 @@ class Find_Data(pas.PipelineAlg):
         return self.run_pa(night, telescope, field, program, datadir, outdir)
 
     def run_pa(self, night, telescope, field, program, datadir, outdir):
-        # Find supernova data
+        # Get data
         if program == 'supernova':
-            from rotseproc.io.preproc import find_supernova_data
+            from rotseproc.io.preproc import find_supernova_data, match_image_prod
             log.info("Finding supernova data for {} from {} to {}".format(field,night[0],night[1]))
-            images, prods = find_supernova_data(night, telescope, field, datadir)
+            # Find supernova data
+            allimages, allprods = find_supernova_data(night, telescope, field, datadir)
+            # Remove image files without corresponding prod file
+            images, prods = match_image_prod(allimages, allprods, field, telescope)
         else:
             log.critical("Program {} is not valid, can't find data...".format(program))
             sys.exit()

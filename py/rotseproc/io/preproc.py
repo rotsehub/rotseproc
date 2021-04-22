@@ -76,6 +76,34 @@ def find_supernova_data(night, telescope, field, datadir):
 
     return images, prods
 
+def match_image_prod(images, prods, field, telescope):
+    """
+    Remove image files without corresponding prod file
+    """
+    # Remove path from prod files
+    prodfiles = []
+    for p in prods:
+        pfile = os.path.split(p)[1]
+        prodfiles.append(pfile)
+
+    noprods = []
+    for i in images:
+        imagefile = os.path.split(i)[1]
+        night = imagefile[:6]
+        expnum = imagefile[22:25]
+        prodfile = night + '_' + field + '_' + telescope + expnum + '_cobj.fit'
+        if prodfile in prodfiles:
+            pass
+        else:
+            noprods.append(i)
+
+    log.info("Removing {} images without prod files".format(len(noprods)))
+
+    for n in noprods:
+        images.remove(n)
+
+    return (images, prods)
+
 def copy_preproc(outdir, images, prods):
     """
     Copy preprocessed files to output directory
