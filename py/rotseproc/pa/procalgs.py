@@ -311,8 +311,47 @@ class Image_Differencing(pas.PipelineAlg):
 
     def run_pa(self, outdir):
         # Run image differencing on all subimages
-        imdir = os.path.join(outdir, 'sub', 'image')
+        subdir = os.path.join(outdir, 'sub')
+        imdir = os.path.join(subdir, 'image')
+        os.chdir(subdir)
         os.system('module swap python/2; difference_all.py -i {}; module swap python/3'.format(imdir))
+
+        return
+
+
+class Photometry(pas.PipelineAlg):
+    """
+    This PA performs image differencing
+    """
+    def __init__(self,name,config,logger=None):
+        if name is None or name.strip() == "":
+            name="Photometry"
+
+        datatype = fits.hdu.hdulist.HDUList
+        pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
+
+    def run(self,*args,**kwargs):
+        if len(args) == 0 :
+            log.critical("Missing input parameter!")
+            sys.exit()
+        if not self.is_compatible(type(args[0])):
+            log.critical("Incompatible input!")
+            sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
+
+        outdir = kwargs["outdir"]
+
+        return self.run_pa(outdir)
+
+    def run_pa(self, outdir):
+        # Do photometry
+        idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        subdir = os.path.join(outdir, 'sub')
+        imdir = os.path.join(subdir, 'image')
+        images = "file_search('{}/*sub*')".format(imdir)
+#        rphot = "file_search('rphot_radec.txt')"
+#        os.system('{} -32 -e "phot_rphot_style,data,imlist={},refname={}[0],radecfile={},/diff"'.format(idl, images, images, rphot))
+        os.chdir(subdir)
+        os.system('{} -32 -e "run_phot,{}"'.format(idl, images))
 
         return
 

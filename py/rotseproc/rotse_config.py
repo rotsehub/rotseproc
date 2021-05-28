@@ -99,6 +99,7 @@ class Config(object):
                           'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
         paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
         paopt_imdiff   = {'outdir':self.outdir}
+        paopt_phot     = {'outdir':self.outdir}
 
         paopts={}
         defList={'Find_Data'          : paopt_find,
@@ -106,7 +107,8 @@ class Config(object):
                  'Source_Extraction'  : paopt_extract,
                  'Make_Subimages'     : paopt_subimage,
                  'Choose_Refstars'    : paopt_refstars,
-                 'Image_Differencing' : paopt_imdiff
+                 'Image_Differencing' : paopt_imdiff,
+                 'Photometry'         : paopt_phot
                 }
 
         def getPAConfigFromFile(PA,algs):
