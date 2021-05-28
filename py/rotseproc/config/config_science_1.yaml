@@ -1,0 +1,20 @@
+# Default configuration for processing ROTSE-III science exposures
+name: ROTSE-III Survey
+Flavor: science
+Program: supernova
+# Heartbeat Period in seconds
+Period: 5.0
+# Time out in seconds
+Timeout: 120.0
+# Pipeline algorithms with relevant QAs
+Pipeline: [Find_Data, Coaddition, Source_Extraction]
+Algorithms:
+    Find_Data:
+        QA: {}
+    Coaddition:
+        QA:
+            Get_RMS:
+                PARAMS: {NOISE_NORMAL_RANGE: [-1.5,1.5], NOISE_WARN_RANGE: [-2.0,2.0], NOISE_REF: [0.]}
+    Source_Extraction:
+        QA: {}
+

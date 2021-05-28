@@ -161,12 +161,9 @@ class Source_Extraction(pas.PipelineAlg):
             os.system(cmd)
 
             # Calibrate sobj file
-            log.info('Calibrating sobj file') 
-           
-            #sobj = fits.open(conf['sobj'])[1].data
 #            idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
-#            rotsecal = "rotse_iii_usno_cal,headfits('{}'),mrdfits('{}',1,/silent),ucat,ucal,ustat,fail=fail,/readusno,subr=[0.5,0.3,0.7,1.0]".format(conf['cimg'], conf['sobj'])
-#            os.system('{} -32 -e "{}"'.format(idl,rotsecal))
+#            os.chdir(coadddir)
+#            os.system('{} -32 -e "run_cal,{}"'.format(idl,[coadds[i]]))
 
         return
 
