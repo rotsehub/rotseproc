@@ -275,7 +275,7 @@ class Choose_Refstars(pas.PipelineAlg):
         if images[0][:2] == images[1][:2]:
             template = images[0]
         else:
-            template = image[-1]
+            template = images[-1]
 
         # Open rphot GUI and choose ref stars
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
@@ -348,8 +348,6 @@ class Photometry(pas.PipelineAlg):
         subdir = os.path.join(outdir, 'sub')
         imdir = os.path.join(subdir, 'image')
         images = "file_search('{}/*sub*')".format(imdir)
-#        rphot = "file_search('rphot_radec.txt')"
-#        os.system('{} -32 -e "phot_rphot_style,data,imlist={},refname={}[0],radecfile={},/diff"'.format(idl, images, images, rphot))
         os.chdir(subdir)
         os.system('{} -32 -e "run_phot,{}"'.format(idl, images))
 
