@@ -85,7 +85,7 @@ class Config(object):
         paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
                       'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
         paopt_coadd = {'outdir':self.outdir}
-        paopt_extract = {}
+        paopt_extract = {'outdir':self.outdir}
         paopt_subimage = {}
 
         paopts={}

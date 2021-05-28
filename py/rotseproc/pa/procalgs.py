@@ -83,7 +83,7 @@ class Coaddition(pas.PipelineAlg):
         return self.run_pa(outdir)
 
     def run_pa(self, outdir):
-        # Setup IDL commands
+        # Set up IDL commands
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
         preprocdir = outdir + '/preproc/'
         imagedir = preprocdir + 'image/'
@@ -120,18 +120,56 @@ class Source_Extraction(pas.PipelineAlg):
         pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
 
     def run(self,*args,**kwargs):
+        if len(args) == 0 :
+            log.critical("Missing input parameter!")
+            sys.exit()
+        if not self.is_compatible(type(args[0])):
+            log.critical("Incompatible input!")
+            sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        coadds = args[0]
+        outdir=kwargs["outdir"]
 
-        return self.run_pa(coadds)
+        return self.run_pa(outdir)
 
-    def run_pa(self, coadds):
-        # Extract sources
+    def run_pa(self, outdir):
+        # Set up sextractor environment
+        extract_par = '/scratch/group/astro/rotse/software/products/idltools/umrotse_idl/tools/sex/'
+        extract_config = '/scratch/group/astro/rotse/software/products/idltools/umrotse_idl/tools/sex/'
 
-        # Get cobj files
-        cobj = []
+        # Run sextractor on each coadded image
+        coadddir = outdir + '/coadd/'
+        coadds = os.listdir(coadddir+'/image')
+        n_files = len(coadds)
+        for i in range(n_files):
+            # Set up output files
+            conf = {'sobjdir':'', 'root':'', 'cimg':'', 'sobj':'', 'cobj':''}
+            conf['sobjdir'] = coadddir+'/prod/'
+            basename = coadds[i].split('000-000')[0]
+            coaddname = basename + '000-000'
+            conf['root'] = coaddname
+            conf['cimg'] = coadddir + '/image/' + coaddname + '_c.fit'
+            conf['sobj'] = coadddir + '/prod/' + coaddname + '_sobj.fit'
+            conf['cobj'] = coadddir + '/prod/' + coaddname + '_cobj.fit'
+            skyname = coadddir + '/prod/' + coaddname + '_sky.fit'
 
-        return cobj
+            # Get saturation level
+            chdr = fits.open(conf['cimg'])[0].header
+            satlevel = str(chdr['SATCNTS'])
+
+            # Run sextractor
+            cmd = 'sex ' + conf['cimg'] + ' -c ' + extract_par + '/rotse3.sex -PARAMETERS_NAME ' + extract_par + '/rotse3.par -FILTER_NAME ' + extract_config + '/gauss_2.0_5x5.conv -PHOT_APERTURES 7 -SATUR_LEVEL ' + satlevel + ' -CATALOG_NAME ' + conf['sobj'] + ' -CHECKIMAGE_NAME ' + skyname
+            os.system(cmd)
+
+            # Calibrate sobj file
+            log.info('Calibrating sobj file') 
+           
+            #sobj = fits.open(conf['sobj'])[1].data
+#            idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+#            rotsecal = "rotse_iii_usno_cal,headfits('{}'),mrdfits('{}',1,/silent),ucat,ucal,ustat,fail=fail,/readusno,subr=[0.5,0.3,0.7,1.0]".format(conf['cimg'], conf['sobj'])
+#            os.system('{} -32 -e "{}"'.format(idl,rotsecal))
+
+        return
+
 
 class Make_Subimages(pas.PipelineAlg):
     """
