@@ -28,7 +28,6 @@ class Config(object):
         self.outdir = outdir
         self.flavor = self.conf["Flavor"]
         self.program = self.conf["Program"]
-        self.dumpintermediates = self.conf["DumpIntermediates"]
         self.datadir = datadir
         self.outdir = outdir
 
@@ -83,13 +82,9 @@ class Config(object):
         """
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
-        outdir = None
-        if self.dumpintermediates:
-            outdir = self.outdir
-
         paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
-                      'Program':self.program, 'datadir':self.datadir, 'outdir':outdir}
-        paopt_coadd = {'Night':self.night}
+                      'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
+        paopt_coadd = {'outdir':self.outdir}
         paopt_extract = {}
         paopt_subimage = {}
 

@@ -2,6 +2,7 @@
 ROTSE-III Pipeline Algorithms
 """
 import os, sys
+import glob
 import numpy as np
 from astropy.io import fits 
 from rotseproc.pa import pas
@@ -28,9 +29,8 @@ class Find_Data(pas.PipelineAlg):
         if not self.is_compatible(type(args[0])):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
-        outdir=None
-        if "outdir" in kwargs:
-            outdir=kwargs["outdir"]
+
+        outdir=kwargs["outdir"]
         datadir=kwargs["datadir"]
 
         night = kwargs['Night']
@@ -54,11 +54,10 @@ class Find_Data(pas.PipelineAlg):
             sys.exit()
 
         # Copy preprocessed images to output directory
-        if outdir is not None:
-            from rotseproc.io.preproc import copy_preproc
-            copy_preproc(outdir, images, prods)
+        from rotseproc.io.preproc import copy_preproc
+        copy_preproc(outdir, images, prods)
 
-        return (images, prods)
+        return
 
 
 class Coaddition(pas.PipelineAlg):
@@ -79,19 +78,34 @@ class Coaddition(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        images = args[0][0]
-        prods = args[0][1]
-        night = kwargs['Night']
+        outdir=kwargs["outdir"]
 
-        return self.run_pa(images, prods, night)
+        return self.run_pa(outdir)
 
-    def run_pa(self, images, prods, night):
-        # Coadd files
+    def run_pa(self, outdir):
+        # Setup IDL commands
+        idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        preprocdir = outdir + '/preproc/'
+        imagedir = preprocdir + 'image/'
+        files = "file_search('{}*')".format(imagedir)
 
-        # Return coadds
-        coadds = []
+        # Run coaddition
+        os.chdir(preprocdir)
+        os.system('{} -e "coadd_all,{}"'.format(idl,files))
 
-        return coadds
+        # Make coadd directories
+        coadds = glob.glob('*000-000_c.fit')
+        coadddir = outdir + '/coadd/'
+        os.mkdir(coadddir)
+        os.mkdir(coadddir + 'image')
+        os.mkdir(coadddir + 'prod')
+
+        # Move coadds to coadd directory
+        coadds = glob.glob('*000-000_c.fit')
+        for c in coadds:
+            os.replace(c,os.path.join(coadddir,'image',c))
+
+        return
 
 
 class Source_Extraction(pas.PipelineAlg):
