@@ -262,9 +262,9 @@ class Choose_Refstars(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        ra        = kwargs["RA"]
-        dec       = kwargs["DEC"]
-        outdir    = kwargs["outdir"]
+        ra     = kwargs["RA"]
+        dec    = kwargs["DEC"]
+        outdir = kwargs["outdir"]
 
         return self.run_pa(ra, dec, outdir)
 
@@ -282,6 +282,37 @@ class Choose_Refstars(pas.PipelineAlg):
         os.chdir(subdir)
         ref = "file_search('image/{}')".format(template)
         os.system('{} -32 -e "rphot,data,imlist={},refname={},targetra={},targetdec={},/small"'.format(idl, ref, ref, ra, dec))
+
+        return
+
+
+class Image_Differencing(pas.PipelineAlg):
+    """
+    This PA performs image differencing
+    """
+    def __init__(self,name,config,logger=None):
+        if name is None or name.strip() == "":
+            name="Image_Differencing"
+
+        datatype = fits.hdu.hdulist.HDUList
+        pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
+
+    def run(self,*args,**kwargs):
+        if len(args) == 0 :
+            log.critical("Missing input parameter!")
+            sys.exit()
+        if not self.is_compatible(type(args[0])):
+            log.critical("Incompatible input!")
+            sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
+
+        outdir = kwargs["outdir"]
+
+        return self.run_pa(outdir)
+
+    def run_pa(self, outdir):
+        # Run image differencing on all subimages
+        imdir = os.path.join(outdir, 'sub', 'image')
+        os.system('module swap python/2; difference_all.py -i {}; module swap python/3'.format(imdir))
 
         return
 

@@ -7,7 +7,7 @@ Period: 5.0
 # Time out in seconds
 Timeout: 120.0
 # Pipeline algorithms with relevant QAs
-Pipeline: [Find_Data, Coaddition, Source_Extraction, Make_Subimages, Choose_Refstars]
+Pipeline: [Find_Data, Coaddition, Source_Extraction, Make_Subimages, Choose_Refstars, Image_Differencing]
 Algorithms:
     Find_Data:
         QA: {}
@@ -21,5 +21,7 @@ Algorithms:
         PixelRadius: 140
         QA: {}
     Choose_Refstars:
+        QA: {}
+    Image_Differencing:
         QA: {}
 

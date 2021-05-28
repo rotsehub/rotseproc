@@ -98,13 +98,15 @@ class Config(object):
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
                           'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
         paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
+        paopt_imdiff   = {'outdir':self.outdir}
 
         paopts={}
-        defList={'Find_Data'         : paopt_find,
-                 'Coaddition'        : paopt_coadd,
-                 'Source_Extraction' : paopt_extract,
-                 'Make_Subimages'    : paopt_subimage,
-                 'Choose_Refstars'   : paopt_refstars
+        defList={'Find_Data'          : paopt_find,
+                 'Coaddition'         : paopt_coadd,
+                 'Source_Extraction'  : paopt_extract,
+                 'Make_Subimages'     : paopt_subimage,
+                 'Choose_Refstars'    : paopt_refstars,
+                 'Image_Differencing' : paopt_imdiff
                 }
 
         def getPAConfigFromFile(PA,algs):
@@ -206,8 +208,7 @@ class Config(object):
         filemap={'Find_Data'         : 'images',
                  'Coaddition'        : 'coadd',
                  'Source_Extraction' : 'extract',
-                 'Make_Subimages'    : 'subimage',
-                 'Choose_Refstars'   : 'subimage'
+                 'Make_Subimages'    : 'subimage'
                  }
 
         if paname in filemap:
