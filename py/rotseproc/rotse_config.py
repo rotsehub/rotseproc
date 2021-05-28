@@ -9,27 +9,33 @@ class Config(object):
     A class to generate ROTSE configurations for a given exposure. 
     expand_config will expand out to full format as needed by rotse.setup
     """
-    def __init__(self, configfile, night, field, telescope, datadir=None, outdir=None, tempdir=None, plots=False):
+    def __init__(self, configfile, night, field, telescope, ra, dec, datadir=None, outdir=None, tempdir=None, plots=False):
         """
-        configfile: ROTSE-III configuration file (e.g. rotseproc/config/config_science.yaml)
-        night: night for the data to process (e.g. 20130101)
-        field: observed field on the sky (e.g. sks0246+3652)
-        telescope: instrument to process (e.g. 3b)
-        Note:
-        datadir and outdir: if not None, overrides the standard ROTSE directories
+        configfile : ROTSE-III configuration file (e.g. rotseproc/config/config_science.yaml)
+        night      : night for the data to process (e.g. 20130101)
+        field      : observed field on the sky (e.g. sks0246+3652)
+        telescope  : instrument to process (e.g. 3b)
+        ra         : target RA
+        dec        : target DEC
+        datadir    : directory containing data
+        outdir     : output directory
         """
         with open(configfile, 'r') as f:
             self.conf = yaml.safe_load(f)
             f.close()
-        self.night = night
-        self.field = field
+
+        self.night     = night
+        self.field     = field
         self.telescope = telescope
-        self.datadir = datadir 
-        self.outdir = outdir
-        self.flavor = self.conf["Flavor"]
-        self.program = self.conf["Program"]
-        self.datadir = datadir
-        self.outdir = outdir
+        self.ra        = ra
+        self.dec       = dec
+        self.datadir   = datadir 
+        self.outdir    = outdir
+        self.flavor    = self.conf["Flavor"]
+        self.program   = self.conf["Program"]
+        self.datadir   = datadir
+        self.outdir    = outdir
+        self.tempdir   = tempdir
 
         self.plotconf = None
         self.hardplots = False
@@ -42,11 +48,11 @@ class Config(object):
         elif plots is None:
             self.hardplots = True
 
-        self.pipeline = self.conf["Pipeline"]
+        self.pipeline   = self.conf["Pipeline"]
         self.algorithms = self.conf["Algorithms"]
-        self._palist = Palist(self.pipeline,self.algorithms)
-        self.pamodule = self._palist.pamodule
-        self.qamodule = self._palist.qamodule
+        self._palist    = Palist(self.pipeline,self.algorithms)
+        self.pamodule   = self._palist.pamodule
+        self.qamodule   = self._palist.qamodule
         
         algokeys = self.algorithms.keys()
 
@@ -59,6 +65,9 @@ class Config(object):
                     if "NORMAL_RANGE" in par:
                         scalar = par.replace("_NORMAL_RANGE","")
                         qaRefKeys[k] = scalar
+
+        # Get pixel radius for subimages
+        self.pixrad = self.algorithms["Make_Subimages"]["PixelRadius"]
 
         rlog = rlogger.rotseLogger(name="RotseConfig")
         self.log = rlog.getlog()
@@ -86,7 +95,8 @@ class Config(object):
                       'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
         paopt_coadd = {'outdir':self.outdir}
         paopt_extract = {'outdir':self.outdir}
-        paopt_subimage = {}
+        paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
+                          'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
 
         paopts={}
         defList={'Find_Data': paopt_find,
@@ -232,12 +242,12 @@ class Config(object):
         self.reference=None
 
         outconfig={}
-        outconfig['Night'] = self.night
-        outconfig['Field'] = self.field
+        outconfig['Night']     = self.night
+        outconfig['Field']     = self.field
         outconfig['Telescope'] = self.telescope
-        outconfig['Flavor'] = self.flavor
-        outconfig['Program'] = self.program
-        outconfig['Period'] = self.period
+        outconfig['Flavor']    = self.flavor
+        outconfig['Program']   = self.program
+        outconfig['Period']    = self.period
 
         pipeline = []
         for ii,PA in enumerate(self.palist):
@@ -250,8 +260,8 @@ class Config(object):
             pipe['StepName']=PA
             pipeline.append(pipe)
 
-        outconfig['Pipeline'] = pipeline
-        outconfig['Timeout'] = self.timeout
+        outconfig['Pipeline']   = pipeline
+        outconfig['Timeout']    = self.timeout
         outconfig['PlotConfig'] = self.plotconf
 
         #- Check if all the files exist for this configuraion

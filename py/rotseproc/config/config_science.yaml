@@ -18,5 +18,6 @@ Algorithms:
     Source_Extraction:
         QA: {}
     Make_Subimages:
+        PixelRadius: 140
         QA: {}
 

@@ -3,29 +3,36 @@ rotseproc.scripts.run_rotse
 ===========================
 Command line wrapper for running the ROTSE-III photometric pipeline
 
-ROTSE team @Southern Methodist University (SMU)
-First version Spring 2021
-Latest revision July 2021
+ROTSE team @ Southern Methodist University (SMU)
+First version Spring 2021 (R. Staten)
+Latest revision June 2021 (R. Staten)
 
 Running pipeline:
 
-    rotse_pipeline -i config_science.yaml -f sks0246+3652
+    rotse_pipeline -i config_science.yaml -f sks0246+3652 -n 070810 071231 -o output
 
-This requires having necessary input files and setting the following environment variables:
+This requires setting the following environment variables:
 
-    ROTSE_DATA: directory containing preprocessed image and cobj files (full path: $ROTSE_DATA/(fill in after data move))
-    ROTSE_REDUX: directory for output images (full path: $ROTSE_REDUX/(fill in later))
-    ROTSE_TEMPLATE: directory containing template images
+    ROTSE_DATA     : directory containing preprocessed image and cobj files
+    ROTSE_REDUX    : directory for output images
+    ROTSE_TEMPLATE : directory containing template images (only needed for supernovae)
 
 Necessary command line arguments:
 
-    -i,--config_file : path to ROTSE-III configuration file
+    --config_file : path to ROTSE-III configuration file
 
 Optional arguments:
 
-    --telescope: which telescope to process (3a, 3b (default), 3c, 3d)
-    --rawdata_dir : directory containing data (overrides $ROTSE_DATA)
+    --field        : field containing target object
+    --night        : first and last nights to search for data (e.g. 070810 071231)
+    --telescope    : which telescope to process (3a, 3b (default), 3c, 3d)
+    --ra           : RA of target object
+    --dec          : DEC of target object
+    --rawdata_dir  : directory containing data (overrides $ROTSE_DATA)
     --specprod_dir : directory for output (overrides $ROTSE_REDUX)
+    --outdir       : output directory ($ROTSE_REDUX/{outdir})
+    --tempdir      : directory containing template image
+    --loglvl       : level of log information to show in the terminal
     
   Plotting options:
 
@@ -44,9 +51,11 @@ def parse():
     parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
     parser.add_argument("-n", "--night", type=str, nargs='+', required=True, help="night(s) of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
+    parser.add_argument("-r", "--ra", type=float, required=False, default=None, help="target RA")
+    parser.add_argument("-d", "--dec", type=float, required=False, default=None, help="target DEC")
     parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
     parser.add_argument("--reduxdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
-    parser.add_argument("--outdir", type=str, required=False, default=".", help="reduxdir/outdir directory")
+    parser.add_argument("-o", "--outdir", type=str, required=False, default=".", help="reduxdir/outdir directory")
     parser.add_argument("--tempdir", type=str, required=False, default=None, help="template directory, overrides $ROTSE_TEMPLATE")
     parser.add_argument("-p", nargs='?', default='noplots', help="generate static plots", dest='plots')
     parser.add_argument("--loglvl", default=20, type=int, help="log level (0=verbose, 50=Critical)")
@@ -81,10 +90,17 @@ def rotse_main(args=None):
 
         outdir = os.path.join(reduxdir, args.outdir)
 
+        tempdir = None
+        if args.tempdir:
+            tempdir = args.tempdir
+        else:
+            if 'ROTSE_TEMPLATE' in os.environ:
+                tempdir = os.getenv('ROTSE_TEMPLATE')
+
         log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):
             if "yaml" in args.config:
-                config = rotse_config.Config(args.config, args.night, args.field, args.telescope, datadir=datadir, outdir=outdir, tempdir=args.tempdir, plots=args.plots)
+                config = rotse_config.Config(args.config, args.night, args.field, args.telescope, args.ra, args.dec, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
                 configdict = config.expand_config()
             else:
                 log.critical("Can't open configuration file {}".format(args.config))

@@ -10,5 +10,6 @@ Timeout: 120.0
 Pipeline: [Make_Subimages]
 Algorithms:
     Make_Subimages:
+        PixelRadius: 140
         QA: {}
 

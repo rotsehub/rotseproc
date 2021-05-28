@@ -78,7 +78,7 @@ class Coaddition(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir=kwargs["outdir"]
+        outdir = kwargs["outdir"]
 
         return self.run_pa(outdir)
 
@@ -103,7 +103,7 @@ class Coaddition(pas.PipelineAlg):
         # Move coadds to coadd directory
         coadds = glob.glob('*000-000_c.fit')
         for c in coadds:
-            os.replace(c,os.path.join(coadddir,'image',c))
+            os.replace(c, os.path.join(coadddir, 'image', c))
 
         return
 
@@ -137,7 +137,7 @@ class Source_Extraction(pas.PipelineAlg):
         extract_config = '/scratch/group/astro/rotse/software/products/idltools/umrotse_idl/tools/sex/'
 
         # Run sextractor on each coadded image
-        coadddir = outdir + '/coadd/'
+        coadddir = outdir + '/coadd'
         coadds = os.listdir(coadddir+'/image')
         n_files = len(coadds)
         for i in range(n_files):
@@ -180,16 +180,65 @@ class Make_Subimages(pas.PipelineAlg):
         pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
 
     def run(self,*args,**kwargs):
+        if len(args) == 0 :
+            log.critical("Missing input parameter!")
+            sys.exit()
+        if not self.is_compatible(type(args[0])):
+            log.critical("Incompatible input!")
+            sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        coadds = args[0]
+        program   = kwargs["Program"]
+        field     = kwargs["Field"]
+        telescope = kwargs["Telescope"]
+        ra        = kwargs["RA"]
+        dec       = kwargs["DEC"]
+        pixrad    = kwargs["PixelRadius"]
+        outdir    = kwargs["outdir"]
+        tempdir   = kwargs["tempdir"]
 
-        return self.run_pa(coadds)
+        return self.run_pa(program, field, telescope, ra, dec, pixrad, outdir, tempdir)
 
-    def run_pa(self, coadds):
-        # Define corrdinates and image size
+    def run_pa(self, program, field, telescope, ra, dec, pixrad, outdir, tempdir):
+        # If running on a supernova, find template file
+        if program == 'supernova':
+            from shutil import copyfile
+
+            coadddir = outdir + '/coadd/'
+            refdir = os.path.join(tempdir, telescope, 'reference')
+            imdir = os.path.join(refdir, 'image')
+            proddir = os.path.join(refdir, 'prod')
+            for i, im in enumerate(os.listdir(imdir)):
+                if field in im:
+                    log.info("Found reference image {}".format(im))
+                    imfile = os.path.join(imdir, im)
+                    imout = os.path.join(coadddir, 'image', im)
+                    copyfile(imfile, imout)
+
+                    prod = os.listdir(proddir)[i]
+                    prodfile = os.path.join(proddir, prod)
+                    prodout = os.path.join(coadddir, 'prod', prod)
+                    copyfile(prodfile, prodout)
+
+                    break
 
         # Make subimages
-        sub = []
+        idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        files = os.listdir(coadddir+'/image')
+        os.chdir(coadddir)
+        os.system('{} -e "make_rotse3_subimage,{},racent={},deccent={},pixrad={}"'.format(idl, files, ra, dec, pixrad))
 
-        return sub
+        # Move subimages to sub directory
+        subdir = os.path.join(outdir, 'sub')
+        os.mkdir(subdir)
+        os.mkdir(os.path.join(subdir, 'image'))
+        os.mkdir(os.path.join(subdir, 'prod'))
+
+        images = glob.glob('*_c.fit')
+        for i in images:
+            os.replace(i, os.path.join(subdir, 'image', i))
+        prods = glob.glob('*_cobj.fit')
+        for p in prods:
+            os.replace(p, os.path.join(subdir, 'prod', p))
+
+        return
 
