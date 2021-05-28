@@ -67,7 +67,8 @@ class Config(object):
                         qaRefKeys[k] = scalar
 
         # Get pixel radius for subimages
-        self.pixrad = self.algorithms["Make_Subimages"]["PixelRadius"]
+        if "Make_Subimages" in self.algorithms.keys():
+            self.pixrad = self.algorithms["Make_Subimages"]["PixelRadius"]
 
         rlog = rlogger.rotseLogger(name="RotseConfig")
         self.log = rlog.getlog()
@@ -95,8 +96,8 @@ class Config(object):
                           'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
         paopt_coadd    = {'outdir':self.outdir}
         paopt_extract  = {'outdir':self.outdir}
-        paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
-                          'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
+#        paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
+#                          'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
         paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
         paopt_imdiff   = {'outdir':self.outdir}
         paopt_phot     = {'outdir':self.outdir}
@@ -105,7 +106,7 @@ class Config(object):
         defList={'Find_Data'          : paopt_find,
                  'Coaddition'         : paopt_coadd,
                  'Source_Extraction'  : paopt_extract,
-                 'Make_Subimages'     : paopt_subimage,
+#                 'Make_Subimages'     : paopt_subimage,
                  'Choose_Refstars'    : paopt_refstars,
                  'Image_Differencing' : paopt_imdiff,
                  'Photometry'         : paopt_phot
