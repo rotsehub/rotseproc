@@ -91,7 +91,7 @@ class Coaddition(pas.PipelineAlg):
 
         # Run coaddition
         os.chdir(preprocdir)
-        os.system('{} -e "coadd_all,{}"'.format(idl,files))
+        os.system('{} -32 -e "coadd_all,{}"'.format(idl,files))
 
         # Make coadd directories
         coadds = glob.glob('*000-000_c.fit')
@@ -110,11 +110,11 @@ class Coaddition(pas.PipelineAlg):
 
 class Source_Extraction(pas.PipelineAlg):
     """
-    This PA uses SExtractor to extract sources and return cobj files
+    This PA uses SExtractor to extract sources (to do: return cobj files)
     """
     def __init__(self, name, config, logger=None):
         if name is None or name.strip() == "":
-            name="Extract_Sources"
+            name="Source_Extraction"
 
         datatype = fits.hdu.hdulist.HDUList
         pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
@@ -174,7 +174,7 @@ class Make_Subimages(pas.PipelineAlg):
     """
     def __init__(self,name,config,logger=None):
         if name is None or name.strip() == "":
-            name="Extract_Sources"
+            name="Make_Subimages"
 
         datatype = fits.hdu.hdulist.HDUList
         pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
@@ -225,7 +225,7 @@ class Make_Subimages(pas.PipelineAlg):
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
         files = os.listdir(coadddir+'/image')
         os.chdir(coadddir)
-        os.system('{} -e "make_rotse3_subimage,{},racent={},deccent={},pixrad={}"'.format(idl, files, ra, dec, pixrad))
+        os.system('{} -32 -e "make_rotse3_subimage,{},racent={},deccent={},pixrad={}"'.format(idl, files, ra, dec, pixrad))
 
         # Move subimages to sub directory
         subdir = os.path.join(outdir, 'sub')
@@ -241,4 +241,48 @@ class Make_Subimages(pas.PipelineAlg):
             os.replace(p, os.path.join(subdir, 'prod', p))
 
         return
+
+
+class Choose_Refstars(pas.PipelineAlg):
+    """
+    This PA chooses reference stars
+    """
+    def __init__(self,name,config,logger=None):
+        if name is None or name.strip() == "":
+            name="Choose_Refstars"
+
+        datatype = fits.hdu.hdulist.HDUList
+        pas.PipelineAlg.__init__(self, name, datatype, datatype, config, logger)
+
+    def run(self,*args,**kwargs):
+        if len(args) == 0 :
+            log.critical("Missing input parameter!")
+            sys.exit()
+        if not self.is_compatible(type(args[0])):
+            log.critical("Incompatible input!")
+            sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
+
+        ra        = kwargs["RA"]
+        dec       = kwargs["DEC"]
+        outdir    = kwargs["outdir"]
+
+        return self.run_pa(ra, dec, outdir)
+
+    def run_pa(self, ra, dec, outdir):
+        # Find template subimage
+        subdir = os.path.join(outdir, 'sub')
+        images = sorted(os.listdir(os.path.join(subdir, 'image')))
+        if images[0][:2] == images[1][:2]:
+            template = images[0]
+        else:
+            template = image[-1]
+
+        # Open rphot GUI and choose ref stars
+        idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        os.chdir(subdir)
+        ref = "file_search('image/{}')".format(template)
+        os.system('{} -32 -e "rphot,data,imlist={},refname={},targetra={},targetdec={},/small"'.format(idl, ref, ref, ra, dec))
+
+        return
+
 

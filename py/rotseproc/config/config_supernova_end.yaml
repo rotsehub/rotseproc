@@ -7,9 +7,11 @@ Period: 5.0
 # Time out in seconds
 Timeout: 120.0
 # Pipeline algorithms with relevant QAs
-Pipeline: [Make_Subimages]
+Pipeline: [Choose_Refstars]
 Algorithms:
     Make_Subimages:
         PixelRadius: 140
+        QA: {}
+    Choose_Refstars:
         QA: {}
 

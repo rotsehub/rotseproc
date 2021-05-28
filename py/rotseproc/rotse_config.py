@@ -91,18 +91,20 @@ class Config(object):
         """
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
-        paopt_find = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
-                      'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
-        paopt_coadd = {'outdir':self.outdir}
-        paopt_extract = {'outdir':self.outdir}
+        paopt_find     = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
+                          'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
+        paopt_coadd    = {'outdir':self.outdir}
+        paopt_extract  = {'outdir':self.outdir}
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
                           'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
+        paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
 
         paopts={}
-        defList={'Find_Data': paopt_find,
-                 'Coaddition': paopt_coadd,
-                 'Source_Extraction': paopt_extract,
-                 'Make_Subimages': paopt_subimage
+        defList={'Find_Data'         : paopt_find,
+                 'Coaddition'        : paopt_coadd,
+                 'Source_Extraction' : paopt_extract,
+                 'Make_Subimages'    : paopt_subimage,
+                 'Choose_Refstars'   : paopt_refstars
                 }
 
         def getPAConfigFromFile(PA,algs):
@@ -125,7 +127,8 @@ class Config(object):
         for PA in self.palist:
             paopts[PA]=getPAConfigFromFile(PA,self.algorithms)
         #- Ignore intermediate dumping and write explicitly the outputfile for 
-        self.outputfile=self.dump_pa(self.palist[-1]) 
+        # Ignore PA outputs for now
+        #self.outputfile=self.dump_pa(self.palist[-1]) 
 
         return paopts 
         
@@ -200,10 +203,11 @@ class Config(object):
         """
         Specify the filenames: json and png of the pa level qa files"
         """
-        filemap={'Find_Data': 'images',
-                 'Coaddition': 'coadd',
-                 'Source_Extraction': 'extract',
-                 'Make_Subimages': 'subimage'
+        filemap={'Find_Data'         : 'images',
+                 'Coaddition'        : 'coadd',
+                 'Source_Extraction' : 'extract',
+                 'Make_Subimages'    : 'subimage',
+                 'Choose_Refstars'   : 'subimage'
                  }
 
         if paname in filemap:
