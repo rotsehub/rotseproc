@@ -296,8 +296,11 @@ class Choose_Refstars(pas.PipelineAlg):
         # Find template subimage
         subdir = os.path.join(outdir, 'sub')
         images = sorted(os.listdir(os.path.join(subdir, 'image')))
-        if images[0][:2] == images[1][:2]:
+        # Check whether template was taken before or after supernova
+        if images[0][:2] != images[1][:2] and images[0][2:6] != '1231':
             template = images[0]
+        elif images[0][2:6] == '1231' and int(images[0][:2]) == int(images[1][:2]) - 1:
+            template = images[-1]
         else:
             template = images[-1]
 
