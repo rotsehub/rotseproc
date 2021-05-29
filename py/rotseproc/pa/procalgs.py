@@ -219,19 +219,27 @@ class Make_Subimages(pas.PipelineAlg):
             refdir = os.path.join(tempdir, telescope, 'reference')
             imdir = os.path.join(refdir, 'image')
             proddir = os.path.join(refdir, 'prod')
-            for i, im in enumerate(os.listdir(imdir)):
-                if field in im:
-                    log.info("Found reference image {}".format(im))
-                    imfile = os.path.join(imdir, im)
-                    imout = os.path.join(coadddir, 'image', im)
-                    copyfile(imfile, imout)
 
-                    prod = os.listdir(proddir)[i]
-                    prodfile = os.path.join(proddir, prod)
-                    prodout = os.path.join(coadddir, 'prod', prod)
-                    copyfile(prodfile, prodout)
+            # Find field if not provided
+            if field is None:
+                ims = os.listdir(coadddir+'image')
+                field = ims[0][7:19]
 
-                    break
+            try:
+                imfile = glob.glob(imdir+'/*{}*'.format(field))[0]
+                im = os.path.split(imfile)[1]
+                imout = os.path.join(coadddir, 'image', im)
+                copyfile(imfile, imout)
+    
+                prodfile = glob.glob(proddir+'/*{}*'.format(field))[0]
+                prod = os.path.split(prodfile)[1]
+                prodout = os.path.join(coadddir, 'prod', prod)
+                copyfile(prodfile, prodout)
+    
+                log.info("Found reference image {}".format(im))
+
+            except:
+                raise exceptions.ReferenceException("No reference image for {}".format(field))
 
         # Make subimages
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
