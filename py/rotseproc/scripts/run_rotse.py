@@ -48,7 +48,7 @@ def parse():
     """
     parser = argparse.ArgumentParser(description="Run pipeline on ROTSE-III data")
     parser.add_argument("-i", "--config_file", type=str, required=True, help="yaml file containing config dictionary", dest="config")
-    parser.add_argument("-n", "--night", type=str, nargs='+', required=False, help="night(s) of data")
+    parser.add_argument("-n", "--night", type=str, nargs='+', required=False, default=None, help="night(s) of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
     parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
     parser.add_argument("-r", "--ra", type=str, required=False, default=None, help="target RA")
