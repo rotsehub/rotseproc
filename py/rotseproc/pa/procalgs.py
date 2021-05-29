@@ -161,9 +161,9 @@ class Source_Extraction(pas.PipelineAlg):
             os.system(cmd)
 
             # Calibrate sobj file
-#            idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
-#            os.chdir(coadddir)
-#            os.system('{} -32 -e "run_cal,{}"'.format(idl,[coadds[i]]))
+            idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+            os.chdir(coadddir)
+            os.system('{} -32 -e "run_cal,{}"'.format(idl,[coadds[i]]))
 
         return
 
