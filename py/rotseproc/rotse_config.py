@@ -120,8 +120,8 @@ class Config(object):
         paopt_extract  = {'outdir':self.outdir}
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
                           'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
-        paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
         paopt_imdiff   = {'outdir':self.outdir}
+        paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
         paopt_phot     = {'outdir':self.outdir}
 
         paopts={}
@@ -129,8 +129,8 @@ class Config(object):
                  'Coaddition'         : paopt_coadd,
                  'Source_Extraction'  : paopt_extract,
                  'Make_Subimages'     : paopt_subimage,
-                 'Choose_Refstars'    : paopt_refstars,
                  'Image_Differencing' : paopt_imdiff,
+                 'Choose_Refstars'    : paopt_refstars,
                  'Photometry'         : paopt_phot
                 }
 
