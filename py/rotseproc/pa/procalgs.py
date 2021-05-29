@@ -30,32 +30,44 @@ class Find_Data(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir=kwargs["outdir"]
-        datadir=kwargs["datadir"]
-
-        night = kwargs['Night']
+        program   = kwargs['Program']
+        night     = kwargs['Night']
         telescope = kwargs['Telescope']
-        field = kwargs['Field']
-        program = kwargs['Program']
+        field     = kwargs['Field']
+        ra        = kwargs['RA']
+        dec       = kwargs['DEC']
+        outdir    = kwargs['outdir']
+        datadir   = kwargs['datadir']
 
-        return self.run_pa(night, telescope, field, program, datadir, outdir)
+        return self.run_pa(night, telescope, field, ra, dec, program, datadir, outdir)
 
-    def run_pa(self, night, telescope, field, program, datadir, outdir):
+    def run_pa(self, night, telescope, field, ra, dec, program, datadir, outdir):
         # Get data
         if program == 'supernova':
-            from rotseproc.io.preproc import find_supernova_data, match_image_prod
-            log.info("Finding supernova data for {} from {} to {}".format(field,night[0],night[1]))
+            from rotseproc.io.supernova import find_supernova_field, find_supernova_data
+            from rotseproc.io.preproc import match_image_prod
+            log.info("Finding supernova data from {} to {}".format(night[0],night[1]))
+
             # Find supernova data
-            allimages, allprods = find_supernova_data(night, telescope, field, datadir)
+            if field is None:
+                if ra is None or dec is None:
+                    log.critical("Must provide either the supernova field or coordinates!")
+                else:
+                    field = find_supernova_field(ra, dec)
+                if field is None:
+                    log.critical("No supernova fields contain data for these coordinates.")
+            allimages, allprods, field = find_supernova_data(night, telescope, field, datadir)
+
             # Remove image files without corresponding prod file
-            images, prods = match_image_prod(allimages, allprods, field, telescope)
+            images, prods = match_image_prod(allimages, allprods, telescope, field)
+
         else:
             log.critical("Program {} is not valid, can't find data...".format(program))
             sys.exit()
 
         # Copy preprocessed images to output directory
         from rotseproc.io.preproc import copy_preproc
-        copy_preproc(outdir, images, prods)
+        copy_preproc(images, prods, outdir)
 
         return
 
@@ -78,7 +90,7 @@ class Coaddition(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir = kwargs["outdir"]
+        outdir = kwargs['outdir']
 
         return self.run_pa(outdir)
 
@@ -127,7 +139,7 @@ class Source_Extraction(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir=kwargs["outdir"]
+        outdir = kwargs['outdir']
 
         return self.run_pa(outdir)
 
@@ -187,18 +199,18 @@ class Make_Subimages(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        program   = kwargs["Program"]
-        field     = kwargs["Field"]
-        telescope = kwargs["Telescope"]
-        ra        = kwargs["RA"]
-        dec       = kwargs["DEC"]
-        pixrad    = kwargs["PixelRadius"]
-        outdir    = kwargs["outdir"]
-        tempdir   = kwargs["tempdir"]
+        program   = kwargs['Program']
+        telescope = kwargs['Telescope']
+        field     = kwargs['Field']
+        ra        = kwargs['RA']
+        dec       = kwargs['DEC']
+        pixrad    = kwargs['PixelRadius']
+        outdir    = kwargs['outdir']
+        tempdir   = kwargs['tempdir']
 
-        return self.run_pa(program, field, telescope, ra, dec, pixrad, outdir, tempdir)
+        return self.run_pa(program, telescope, field, ra, dec, pixrad, outdir, tempdir)
 
-    def run_pa(self, program, field, telescope, ra, dec, pixrad, outdir, tempdir):
+    def run_pa(self, program, telescope, field, ra, dec, pixrad, outdir, tempdir):
         # If running on a supernova, find template file
         if program == 'supernova':
             from shutil import copyfile
@@ -262,9 +274,9 @@ class Choose_Refstars(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        ra     = kwargs["RA"]
-        dec    = kwargs["DEC"]
-        outdir = kwargs["outdir"]
+        ra     = kwargs['RA']
+        dec    = kwargs['DEC']
+        outdir = kwargs['outdir']
 
         return self.run_pa(ra, dec, outdir)
 
@@ -305,7 +317,7 @@ class Image_Differencing(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir = kwargs["outdir"]
+        outdir = kwargs['outdir']
 
         return self.run_pa(outdir)
 
@@ -338,7 +350,7 @@ class Photometry(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir = kwargs["outdir"]
+        outdir = kwargs['outdir']
 
         return self.run_pa(outdir)
 

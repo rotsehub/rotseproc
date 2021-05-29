@@ -9,33 +9,56 @@ class Config(object):
     A class to generate ROTSE configurations for a given exposure. 
     expand_config will expand out to full format as needed by rotse.setup
     """
-    def __init__(self, configfile, night, field, telescope, ra, dec, datadir=None, outdir=None, tempdir=None, plots=False):
+    def __init__(self, configfile, night, telescope, field, ra, dec, datadir=None, outdir=None, tempdir=None, plots=False):
         """
         configfile : ROTSE-III configuration file (e.g. rotseproc/config/config_science.yaml)
         night      : night for the data to process (e.g. 20130101)
-        field      : observed field on the sky (e.g. sks0246+3652)
         telescope  : instrument to process (e.g. 3b)
+        field      : observed field on the sky (e.g. sks0246+3652)
         ra         : target RA
         dec        : target DEC
         datadir    : directory containing data
         outdir     : output directory
         """
+        rlog = rlogger.rotseLogger(name="RotseConfig")
+        self.log = rlog.getlog()
+
         with open(configfile, 'r') as f:
             self.conf = yaml.safe_load(f)
             f.close()
 
+        self.program   = self.conf["Program"]
+        self.log.info("Expanding configuration for {} program".format(self.program))
+
         self.night     = night
-        self.field     = field
         self.telescope = telescope
-        self.ra        = ra
-        self.dec       = dec
+        self.field     = field
         self.datadir   = datadir 
         self.outdir    = outdir
         self.flavor    = self.conf["Flavor"]
-        self.program   = self.conf["Program"]
         self.datadir   = datadir
         self.outdir    = outdir
         self.tempdir   = tempdir
+
+        # Convert RA and DEC to floating point numbers
+        if ra is None:
+            self.ra = ra
+            self.dec = dec
+        elif ':' in ra:
+            ra_split = ra.split(':')
+            dec_split = dec.split(':')
+    
+            self.ra = float(ra_split[0])*15. + float(ra_split[1])/4. + float(ra_split[2])/240.
+    
+            if float(dec_split[0]) >= 0.:
+                self.dec = float(dec_split[0]) + float(dec_split[1])/60. + float(dec_split[2])/3600.
+            else:
+                self.dec = float(dec_split[0]) - float(dec_split[1])/60. - float(dec_split[2])/3600.
+        elif float(ra) > 0. and float(ra) < 360.:
+            self.ra = float(ra)
+            self.dec = float(dec)
+        else:
+            self.log.warning("RA and DEC are not in the right format, this could cause downstream issues.")
 
         self.plotconf = None
         self.hardplots = False
@@ -71,8 +94,6 @@ class Config(object):
         if "Make_Subimages" in self.algorithms.keys():
             self.pixrad = self.algorithms["Make_Subimages"]["PixelRadius"]
 
-        rlog = rlogger.rotseLogger(name="RotseConfig")
-        self.log = rlog.getlog()
         self._qaRefKeys = qaRefKeys
 
     @property
@@ -93,8 +114,8 @@ class Config(object):
         """
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
-        paopt_find     = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field,
-                          'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
+        paopt_find     = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field, 'RA':self.ra,
+                          'DEC':self.dec, 'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
         paopt_coadd    = {'outdir':self.outdir}
         paopt_extract  = {'outdir':self.outdir}
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
@@ -281,9 +302,7 @@ def check_config(outconfig):
     """
     Given the expanded config, check for all possible file existence etc...
     """
-    rlog = rlogger.rotseLogger(name="RotseConfig")
-    log = rlog.getlog()
-    log.info("Checking if all the necessary files exist.")
+    self.log.info("Checking if all the necessary files exist.")
 
     # Perform necessary checks
 

@@ -23,9 +23,9 @@ Necessary command line arguments:
 
 Optional arguments:
 
-    --field        : field containing target object
     --night        : first and last nights to search for data (e.g. 070810 071231)
     --telescope    : which telescope to process (3a, 3b (default), 3c, 3d)
+    --field        : field containing target object
     --ra           : RA of target object
     --dec          : DEC of target object
     --rawdata_dir  : directory containing data (overrides $ROTSE_DATA)
@@ -48,11 +48,11 @@ def parse():
     """
     parser = argparse.ArgumentParser(description="Run pipeline on ROTSE-III data")
     parser.add_argument("-i", "--config_file", type=str, required=True, help="yaml file containing config dictionary", dest="config")
-    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
     parser.add_argument("-n", "--night", type=str, nargs='+', required=True, help="night(s) of data")
     parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
-    parser.add_argument("-r", "--ra", type=float, required=False, default=None, help="target RA")
-    parser.add_argument("-d", "--dec", type=float, required=False, default=None, help="target DEC")
+    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
+    parser.add_argument("-r", "--ra", type=str, required=False, default=None, help="target RA")
+    parser.add_argument("-d", "--dec", type=str, required=False, default=None, help="target DEC")
     parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
     parser.add_argument("--reduxdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
     parser.add_argument("-o", "--outdir", type=str, required=False, default=".", help="reduxdir/outdir directory")
@@ -100,7 +100,7 @@ def rotse_main(args=None):
         log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):
             if "yaml" in args.config:
-                config = rotse_config.Config(args.config, args.night, args.field, args.telescope, args.ra, args.dec, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
+                config = rotse_config.Config(args.config, args.night, args.telescope, args.field, args.ra, args.dec, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
                 configdict = config.expand_config()
             else:
                 log.critical("Can't open configuration file {}".format(args.config))
