@@ -30,8 +30,12 @@ class Find_Data(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
+        night = kwargs['Night']
+        if night is None:
+            log.critical("Must provide night as a command line argument!")
+            sys.exit("The Find_Data PA requires nights to find data...")
+
         program   = kwargs['Program']
-        night     = kwargs['Night']
         telescope = kwargs['Telescope']
         field     = kwargs['Field']
         ra        = kwargs['RA']

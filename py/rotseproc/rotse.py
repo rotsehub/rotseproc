@@ -137,9 +137,6 @@ def setup_pipeline(config):
     telescope=config["Telescope"]
     flavor=config["Flavor"]
     program=config["Program"]
-    if night is None:
-        log.critical("Config is missing \"Night\" key.")
-        sys.exit("Missing \"Night\" key.")
     hbeat=HB.Heartbeat(log,config["Period"],config["Timeout"])
     if config["Timeout"] > 200.0:
         log.warning("Heartbeat timeout exceeding 200.0 seconds")
