@@ -154,9 +154,7 @@ class Config(object):
 
         for PA in self.palist:
             paopts[PA]=getPAConfigFromFile(PA,self.algorithms)
-        #- Ignore intermediate dumping and write explicitly the outputfile for 
-        # Ignore PA outputs for now
-        self.outputfile=self.dump_pa(self.palist[-1]) 
+
 
         return paopts 
         
