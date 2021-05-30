@@ -365,11 +365,12 @@ class Photometry(pas.PipelineAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        outdir = kwargs['outdir']
+        outdir   = kwargs['outdir']
+        dumpfile = kwargs['dumpfile']
 
-        return self.run_pa(outdir)
+        return self.run_pa(outdir, dumpfile)
 
-    def run_pa(self, outdir):
+    def run_pa(self, outdir, dumpfile):
         # Do photometry
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
         subdir = os.path.join(outdir, 'sub')

@@ -2,6 +2,7 @@ import os, sys
 import json
 import yaml
 import numpy as np
+from rotseproc.io.findfile import findfile
 from rotseproc import exceptions, rlogger
 
 class Config(object):
@@ -122,7 +123,7 @@ class Config(object):
                           'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
         paopt_imdiff   = {'outdir':self.outdir}
         paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
-        paopt_phot     = {'outdir':self.outdir}
+        paopt_phot     = {'outdir':self.outdir, 'dumpfile':self.dump_pa('Photometry')}
 
         paopts={}
         defList={'Find_Data'          : paopt_find,
@@ -155,7 +156,7 @@ class Config(object):
             paopts[PA]=getPAConfigFromFile(PA,self.algorithms)
         #- Ignore intermediate dumping and write explicitly the outputfile for 
         # Ignore PA outputs for now
-        #self.outputfile=self.dump_pa(self.palist[-1]) 
+        self.outputfile=self.dump_pa(self.palist[-1]) 
 
         return paopts 
         
@@ -163,15 +164,13 @@ class Config(object):
         """
         dump the PA outputs to respective files
         """
-        pafilemap = {'Coaddition':'coadd', 'Source_Extraction':'cobj', 'Make_Subimages':'sub'}
+        pafilemap = {'Photometry': 'lightcurve'}
         if paname in pafilemap:
-            filetype=pafilemap[paname]
+            filetype = pafilemap[paname]
         else:
-            raise IOError("PA name does not match any file type. Check PA name in config") 
+            raise IOError("PA name does not match any file type. Check PA name in config file.") 
 
-        pafile=None
-        if filetype is not None:
-            pafile=[] # Need findfile function
+        pafile = findfile(filetype, self.outdir)
 
         return pafile
 
@@ -228,7 +227,7 @@ class Config(object):
 
     def io_qa_pa(self,paname):
         """
-        Specify the filenames: json and png of the pa level qa files"
+        Specify the filenames: the pa level qa files"
         """
         filemap={'Find_Data'         : 'images',
                  'Coaddition'        : 'coadd',
@@ -237,8 +236,8 @@ class Config(object):
                  }
 
         if paname in filemap:
-            outfile = [] # Need findfile function
-            outfig = []
+            outfile = findfile() # Update when needed
+            outfig = findfile()
         else:
             raise IOError("PA name does not match any file type. Check PA name in config for {}".format(paname))
 
@@ -247,7 +246,7 @@ class Config(object):
 
     def io_qa(self,qaname):
         """
-        Specify the filenames: json and png for the given qa output
+        Specify the filenames: files for the given qa output
         """
         filemap={'Get_RMS': 'getrms'
                  }
