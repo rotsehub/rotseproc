@@ -11,7 +11,7 @@ def findfile(filetype, outdir):
     filedict = {'lightcurve' : '{}/{}.pdf'}
 
     # Return file for specific filetype
-    outfile = filedict[filetype].format(filetype, outdir)
+    outfile = filedict[filetype].format(outdir, filetype)
     outfile = os.path.normpath(outfile)
 
     return outfile

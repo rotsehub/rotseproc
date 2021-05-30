@@ -81,7 +81,7 @@ def rotse_qaplot(fig, plotconf, qadict, camera, expid, outfile):
                 zvals=np.array(qadict['METRICS'][plot['ZVALS']])
                 xtitle=plot['XTITLE']
                 ytitle=plot['YTITLE']
-                scatter=3dplot_3d(ax,xvals,yvals,zvals,plottitle,xtitle,ytitle,zlim,heatmap)
+                scatter=plot_3d(ax,xvals,yvals,zvals,plottitle,xtitle,ytitle,zlim,heatmap)
                 fig.colorbar(scatter)
 
         #- Adjust plots to fit page and output png
@@ -124,35 +124,41 @@ def patchplot(ax, vals, plottitle, grid, heatmap=None):
 
     return patch
 
-def plot_2d(ax,xvals,yvals,plottitle,xtitle,ytitle,xlim=None,ylim=None):
+def plot_2d(ax, xvals, yvals, xtitle, ytitle, plottitle=None, xerr=None, yerr=None, xlim=None, ylim=None):
     """
     Make 2d plot of specific metrics provided in configuration file
 
     Args:
-        ax: matplotlib subplot
-        xvals: QA metric to be plotted along the xaxis
-        yvals: QA metric to be plotted along the yaxis
-        plottitle: plot title from configuration file
-        xtitle: x axis label
-        ytitle: y axis label
+        ax      : matplotlib subplot
+        xvals   : QA metric to be plotted along the xaxis
+        yvals   : QA metric to be plotted along the yaxis
+        xtitle  : x axis label
+        ytitle  : y axis label
     Optional:
-        xlim: list containing x range (i.e. [x_lo,x_hi])
-        ylim: list containing y range (i.e. [y_lo,y_hi])
+        plottitle : plot title from configuration file
+        xerr      : error on x values
+        yerr      : error on y values
+        xlim      : list containing x range (i.e. [x_lo,x_hi])
+        ylim      : list containing y range (i.e. [y_lo,y_hi])
 
     Returns:
         matplotlib sublot containing plotted metrics
     """
-    #- Set title and axis labels
-    ax.set_title(plottitle,fontsize=10)
-    ax.set_xlabel(xtitle,fontsize=10)
-    ax.set_ylabel(ytitle,fontsize=10)
+    # Set title and axis labels
+    if plottitle:
+        ax.set_title(plottitle, fontsize=10)
+    ax.set_xlabel(xtitle, fontsize=10)
+    ax.set_ylabel(ytitle, fontsize=10)
 
-    #- Add optional arguments
-    if xlim: ax.set_xlim(xlim[0],xlim[1])
-    if ylim: ax.set_ylim(ylim[0],ylim[1])
+    # Set axis limits
+    if xlim: ax.set_xlim(xlim[0], xlim[1])
+    if ylim: ax.set_ylim(ylim[0], ylim[1])
 
-    #- Generate 2d plot
-    ax.plot(xvals,yvals)
+    # Generate 2d plot
+    if xerr is None and yerr is None:
+        ax.plot(xvals, yvals)
+    else:
+        ax.errorbar(xvals, yvals, yerr=yerr, xerr=xerr, fmt='.')
 
     return ax
 

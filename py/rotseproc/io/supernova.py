@@ -4,6 +4,8 @@ I/O functions for supernova data
 import os
 import numpy as np
 from astropy.table import Table
+import matplotlib.pyplot as plt
+from rotseproc.plotlib import plot_2d
 from rotseproc import rlogger
 
 rlog = rlogger.rotseLogger("ROTSE-III",20)
@@ -119,4 +121,24 @@ def find_supernova_data(night, telescope, field, datadir):
     log.info("Found data in {} for {} nights".format(field, len(set(founddata))))
 
     return images, prods, field
+
+def plot_light_curve(lc_data_file, dumpfile):
+    """
+    Plot supernova light curve and output to pdf
+    """
+    # Get data to plot from file
+    data  = np.loadtxt(lc_data_file, unpack=True)
+    mjd   = data[0]
+    mag   = data[2]
+    loerr = mag - data[3]
+    hierr = data[4] - mag
+
+    # Generate light curve pdf
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax = plot_2d(ax, mjd, mag, "MJD", "ROTSE Magnitude", yerr=[loerr,hierr])
+    plt.gca().invert_yaxis()
+    fig.savefig(dumpfile)
+
+    return
 
