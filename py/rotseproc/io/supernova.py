@@ -58,8 +58,12 @@ def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
     if len(night) == 1:
         night = night[0]
 
-        startmonth = str(int(night[2:4]) - t_before).zfill(2)
-        startdate = night[:2] + startmonth + night[4:6]
+        if night[2:4] == '01':
+            startyear = str(int(night[:2]) - 1).zfill(2)
+            startdate = startyear + '12' + night[4:6]
+        else:
+            startmonth = str(int(night[2:4]) - t_before).zfill(2)
+            startdate = night[:2] + startmonth + night[4:6]
 
         stopyear = str(int(night[:2]) + t_after).zfill(2)
         stopdate = stopyear + night[2:4] + night[4:6]
@@ -75,26 +79,19 @@ def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
     log.info("Finding supernova data from {} to {}".format(startdate, stopdate))
 
     # Define full date range of data
-    years = [startdate[:2], stopdate[:2]]
+    years = np.arange(int(startdate[:2]), int(stopdate[:2])+1)
     months = np.arange(12,dtype=int) + 1
-    for m, mm in enumerate(months):
-        months[m] = '{:02d}'.format(mm)
     days = np.arange(31,dtype=int) + 1
-    for d, dd in enumerate(days):
-        days[d] = '{:02d}'.format(dd)
 
     dates = []
     for ye in years:
         for mo in months:
             for da in days:
-                yearstring = str('{:02d}'.format(int(ye)))
-                monthstring = str('{:02d}'.format(int(mo)))
-                daystring = str('{:02d}'.format(int(da)))
-                datestring = yearstring+monthstring+daystring
-                if datestring not in dates:
-                    dates.append(datestring)
-                else:
-                    break
+                yearstring = str(ye).zfill(2)
+                monthstring = str(mo).zfill(2)
+                daystring = str(da).zfill(2)
+                datestring = yearstring + monthstring + daystring
+                dates.append(datestring)
 
     # Cut dates to start and stop dates
     date_ints = np.array(dates).astype(int)

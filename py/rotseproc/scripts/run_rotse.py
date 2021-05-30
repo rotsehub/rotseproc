@@ -78,14 +78,16 @@ def rotse_main(args=None):
             datadir = args.datadir
         else:
             if 'ROTSE_DATA' not in os.environ:
-                sys.exit("Must set $ROTSE_DATA environment variable or provide datadir")
+                log.critical("Must set $ROTSE_DATA environment variable or provide datadir")
+                sys.exit()
             datadir = os.getenv('ROTSE_DATA')
 
         if args.reduxdir:
             reduxdir = args.reduxdir
         else:
             if 'ROTSE_REDUX' not in os.environ:
-                sys.exit("Must set $ROTSE_REDUX environment variable or provide reduxdir")
+                log.critical("Must set $ROTSE_REDUX environment variable or provide reduxdir")
+                sys.exit()
             reduxdir = os.getenv('ROTSE_REDUX')
 
         outdir = os.path.join(reduxdir, args.outdir)
@@ -97,7 +99,7 @@ def rotse_main(args=None):
             if 'ROTSE_TEMPLATE' in os.environ:
                 tempdir = os.getenv('ROTSE_TEMPLATE')
 
-        log.debug("Running ROTSE-III pipeline using configuration file {}".format(args.config))
+        log.info("Running ROTSE-III pipeline using configuration file {}".format(args.config))
         if os.path.exists(args.config):
             if "yaml" in args.config:
                 config = rotse_config.Config(args.config, args.night, args.telescope, args.field, args.ra, args.dec, datadir=datadir, outdir=outdir, tempdir=tempdir, plots=args.plots)
