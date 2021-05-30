@@ -201,19 +201,19 @@ class Config(object):
     @property
     def qaargs(self):
         qaopts = {}
-        referencemetrics=[]        
+        referencemetrics = []        
         for PA in self.palist:
             for qa in self.qalist[PA]: #- individual QA for that PA
                 pa_yaml = PA.upper()
-                params=self._qaparams(qa)
-                qaopts[qa]={'night':self.night, 'telescope':self.telescope, 'flavor':self.flavor, 'program':self.program, 'param':params}
+                params = self._qaparams(qa)
+                qaopts[qa] = {'Program':self.program, 'param':params}
 
                 if self.reference != None:
-                    refkey=qaopts[qa]['refKey']
+                    refkey = qaopts[qa]['refKey']
                     for padict in range(len(self.reference)):
-                        pa_metrics=self.reference[padict].keys()
+                        pa_metrics = self.reference[padict].keys()
                         if refkey in pa_metrics:
-                            qaopts[qa]['ReferenceMetrics']={'{}'.format(refkey): self.reference[padict][refkey]}
+                            qaopts[qa]['ReferenceMetrics'] = {'{}'.format(refkey): self.reference[padict][refkey]}
         return qaopts
 
     def _qaparams(self,qa):
@@ -221,7 +221,7 @@ class Config(object):
         if self.algorithms is not None:
             for PA in self.palist:
                 if qa in self.qalist[PA]:
-                    params[qa]=self.algorithms[PA]['QA'][qa]['PARAMS']
+                    params[qa] = self.algorithms[PA]['QA'][qa]['PARAMS']
         else:
             # Need to settle optimal error handling in cases like this.
             raise exceptions.ParameterException("Run time PARAMs not provided for QA")

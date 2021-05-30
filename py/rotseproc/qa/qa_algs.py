@@ -72,36 +72,30 @@ class Get_RMS(MonitoringAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
-        print(args, kwargs)
-        image = args[0]
+        images = args[0]
         inputs = get_inputs(*args,**kwargs)
 
-        return self.run_qa(image, inputs)
+        return self.run_qa(images, inputs)
 
-    def run_qa(self, image, inputs):
-        paname = inputs['paname']
-        flavor = inputs['flavor']
-        program = inputs['program']
+    def run_qa(self, images, inputs):
+        # Get relevant inputs
         param = inputs['param']
-        refmetrics = inputs['refmetrics']
-        
-        #- QA dictionary 
-        retval = {}
-        retval["PANAME"] = paname
-        retval["FLAVOR"] = flavor
-        retval["PROGRAM"] = program
-        retval["QATIME"] = datetime.datetime.now().isoformat()
-        kwargs = self.config['kwargs']
-
         if param is None:
                 log.critical("No parameter is found for this QA")
                 sys.exit("Update the configuration file for the parameters")
+        paname     = inputs['paname']
+        program    = inputs['program']
+        refmetrics = inputs['refmetrics']
 
         # Calculate noise
         noise = 0.
-
+     
+        # Set up output dictionary 
+        retval = {}
+        retval["PROGRAM"] = program
+        retval["PANAME"]  = paname
+        retval["PARAMS"]  = param
         retval["METRICS"] = {"NOISE":noise}
-        retval["PARAMS"] = param
 
         return retval
 

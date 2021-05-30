@@ -109,10 +109,9 @@ class Coaddition(pas.PipelineAlg):
 
         # Run coaddition
         os.chdir(preprocdir)
-        os.system('{} -32 -e "coadd_all,{}"'.format(idl,files))
+        os.system('{} -32 -e "coadd_all,{}"'.format(idl, files))
 
         # Make coadd directories
-        coadds = glob.glob('*000-000_c.fit')
         coadddir = outdir + '/coadd/'
         os.mkdir(coadddir)
         os.mkdir(coadddir + 'image')
@@ -123,7 +122,10 @@ class Coaddition(pas.PipelineAlg):
         for c in coadds:
             os.replace(c, os.path.join(coadddir, 'image', c))
 
-        return
+        # Find coadded images to pass to QAs
+        coadd_files = glob.glob(coadddir + 'image/*')
+
+        return coadd_files
 
 
 class Source_Extraction(pas.PipelineAlg):
