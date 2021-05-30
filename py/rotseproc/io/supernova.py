@@ -50,13 +50,29 @@ def find_supernova_field(ra, dec):
 
     return found_field
 
-def find_supernova_data(night, telescope, field, datadir):
+def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
     """
     Get image and prod files for a range of dates
     """
-    # Define first and last day to find data
-    startdate = night[0]
-    stopdate = night[1]
+    # Define first and last date to find data
+    if len(night) == 1:
+        night = night[0]
+
+        startmonth = str(int(night[2:4]) - t_before).zfill(2)
+        startdate = night[:2] + startmonth + night[4:6]
+
+        stopyear = str(int(night[:2]) + t_after).zfill(2)
+        stopdate = stopyear + night[2:4] + night[4:6]
+
+    elif len(night) == 2:
+        startdate = night[0]
+        stopdate = night[1]
+
+    else:
+        log.critical("Wrong night format!")
+        sys.exit("Must provide either discovery date or first/last date to search.")
+
+    log.info("Finding supernova data from {} to {}".format(startdate, stopdate))
 
     # Define full date range of data
     years = [startdate[:2], stopdate[:2]]

@@ -34,8 +34,6 @@ class Config(object):
         self.night     = night
         self.telescope = telescope
         self.field     = field
-        self.datadir   = datadir 
-        self.outdir    = outdir
         self.flavor    = self.conf["Flavor"]
         self.datadir   = datadir
         self.outdir    = outdir
@@ -95,6 +93,12 @@ class Config(object):
         if "Make_Subimages" in self.algorithms.keys():
             self.pixrad = self.algorithms["Make_Subimages"]["PixelRadius"]
 
+        self.t_before = None
+        self.t_after = None
+        if "Find_Data" in self.algorithms.keys():
+            self.t_before  = self.algorithms["Find_Data"]["TimeBeforeDiscovery"]
+            self.t_after   = self.algorithms["Find_Data"]["TimeAfterDiscovery"]
+
         self._qaRefKeys = qaRefKeys
 
     @property
@@ -116,7 +120,8 @@ class Config(object):
         Many arguments for the PAs are taken default. Some of these may need to be variable
         """
         paopt_find     = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field, 'RA':self.ra,
-                          'DEC':self.dec, 'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
+                          'DEC':self.dec, 'TimeBeforeDiscovery': self.t_before, 'TimeAfterDiscovery': self.t_after,
+                          'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
         paopt_coadd    = {'outdir':self.outdir}
         paopt_extract  = {'outdir':self.outdir}
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,

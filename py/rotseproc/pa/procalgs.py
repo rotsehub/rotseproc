@@ -40,17 +40,18 @@ class Find_Data(pas.PipelineAlg):
         field     = kwargs['Field']
         ra        = kwargs['RA']
         dec       = kwargs['DEC']
+        t_before  = kwargs['TimeBeforeDiscovery']
+        t_after   = kwargs['TimeAfterDiscovery']
         outdir    = kwargs['outdir']
         datadir   = kwargs['datadir']
 
-        return self.run_pa(night, telescope, field, ra, dec, program, datadir, outdir)
+        return self.run_pa(program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir)
 
-    def run_pa(self, night, telescope, field, ra, dec, program, datadir, outdir):
+    def run_pa(self, program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir):
         # Get data
         if program == 'supernova':
             from rotseproc.io.supernova import find_supernova_field, find_supernova_data
             from rotseproc.io.preproc import match_image_prod
-            log.info("Finding supernova data from {} to {}".format(night[0],night[1]))
 
             # Find supernova data
             if field is None:
@@ -61,7 +62,7 @@ class Find_Data(pas.PipelineAlg):
                 if field is None:
                     log.critical("No supernova fields contain data for these coordinates.")
 
-            allimages, allprods, field = find_supernova_data(night, telescope, field, datadir)
+            allimages, allprods, field = find_supernova_data(night, telescope, field, t_before, t_after, datadir)
 
             # Remove image files without corresponding prod file
             images, prods = match_image_prod(allimages, allprods, telescope, field)

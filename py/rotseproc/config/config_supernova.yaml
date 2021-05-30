@@ -10,6 +10,8 @@ Timeout: 120.0
 Pipeline: [Find_Data, Coaddition, Source_Extraction, Make_Subimages, Image_Differencing, Choose_Refstars, Photometry]
 Algorithms:
     Find_Data:
+        TimeBeforeDiscovery: 1 # months
+        TimeAfterDiscovery: 2 # years
         QA: {}
     Coaddition:
         QA:
