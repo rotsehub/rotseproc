@@ -22,25 +22,25 @@ def get_inputs(*args,**kwargs):
     inputs={}
 
     if "paname" in kwargs: inputs["paname"] = kwargs["paname"]
-    else: inputs["paname"]=None
+    else: inputs["paname"] = None
 
     if "flavor" in kwargs: inputs["flavor"] = kwargs["flavor"]
-    else: inputs["flavor"]=None
+    else: inputs["flavor"] = None
 
     if "program" in kwargs: inputs["program"] = kwargs["program"]
-    else: inputs["program"]=None
+    else: inputs["program"] = None
 
     if "qafile" in kwargs: inputs["qafile"] = kwargs["qafile"]
-    else: inputs["qafile"]=None
+    else: inputs["qafile"] = None
 
-    if "qafig" in kwargs: inputs["qafig"]=kwargs["qafig"]
-    else: inputs["qafig"]=None
+    if "qafig" in kwargs: inputs["qafig"] = kwargs["qafig"]
+    else: inputs["qafig"] = None
 
     if "param" in kwargs: inputs["param"]=kwargs["param"]
-    else: inputs["param"]=None
+    else: inputs["param"] = None
 
-    if "refmetrics" in kwargs: inputs["refmetrics"]=kwargs["refmetrics"]
-    else: inputs["refmetrics"]=None
+    if "refmetrics" in kwargs: inputs["refmetrics"] = kwargs["refmetrics"]
+    else: inputs["refmetrics"] = None
 
     return inputs
 
@@ -48,21 +48,21 @@ class Get_RMS(MonitoringAlg):
     def __init__(self, name, config, logger=None):
         if name is None or name.strip() == "":
             name="Get_RMS"
-        kwargs=config['kwargs']
-        parms=kwargs['param']
-        key=kwargs['refKey'] if 'refKey' in kwargs else "NOISE"
-        status=kwargs['statKey'] if 'statKey' in kwargs else "NOISE_STATUS"
-        kwargs["RESULTKEY"]=key
-        kwargs["QASTATUSKEY"]=status
+        kwargs = config['kwargs']
+        parms = kwargs['param']
+        key = kwargs['refKey'] if 'refKey' in kwargs else "NOISE"
+        status = kwargs['statKey'] if 'statKey' in kwargs else "NOISE_STATUS"
+        kwargs["RESULTKEY"] = key
+        kwargs["QASTATUSKEY"] = status
         if "ReferenceMetrics" in kwargs:
-            r=kwargs["ReferenceMetrics"]
+            r = kwargs["ReferenceMetrics"]
             if key in r:
-                kwargs["REFERENCE"]=r[key]
+                kwargs["REFERENCE"] = r[key]
         if "NOISE_WARN_RANGE" in parms and "NOISE_NORMAL_RANGE" in parms:
-            kwargs["RANGES"]=[(np.asarray(parms["NOISE_WARN_RANGE"]),QASeverity.WARNING),
-                              (np.asarray(parms["NOISE_NORMAL_RANGE"]),QASeverity.NORMAL)]
+            kwargs["RANGES"] = [(np.asarray(parms["NOISE_WARN_RANGE"]),QASeverity.WARNING),
+                               (np.asarray(parms["NOISE_NORMAL_RANGE"]),QASeverity.NORMAL)]
         im = fits.hdu.hdulist.HDUList
-        MonitoringAlg.__init__(self,name,im,config,logger)
+        MonitoringAlg.__init__(self, name, im, config, logger)
     def run(self, *args, **kwargs):
         if len(args) == 0 :
             log.critical("No parameter is found for this QA")
@@ -72,6 +72,7 @@ class Get_RMS(MonitoringAlg):
             log.critical("Incompatible input!")
             sys.exit("Was expecting {} got {}".format(type(self.__inpType__),type(args[0])))
 
+        print(args, kwargs)
         image = args[0]
         inputs = get_inputs(*args,**kwargs)
 

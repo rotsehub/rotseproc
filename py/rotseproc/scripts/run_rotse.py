@@ -47,18 +47,18 @@ def parse():
         Should have either a pre existing config file, or need to generate one using config module
     """
     parser = argparse.ArgumentParser(description="Run pipeline on ROTSE-III data")
-    parser.add_argument("-i", "--config_file", type=str, required=True, help="yaml file containing config dictionary", dest="config")
-    parser.add_argument("-n", "--night", type=str, nargs='+', required=False, default=None, help="night(s) of data")
-    parser.add_argument("-t", "--telescope", type=str, required=False, default="3b", help="which ROTSE-III telescope")
-    parser.add_argument("-f", "--field", type=str, required=False, default=None, help="field containing transient", dest="field")
-    parser.add_argument("-r", "--ra", type=str, required=False, default=None, help="target RA")
-    parser.add_argument("-d", "--dec", type=str, required=False, default=None, help="target DEC")
-    parser.add_argument("--datadir", type=str, required=False, help="data directory, overrides $ROTSE_DATA")
-    parser.add_argument("--reduxdir", type=str, required=False, help="output directory, overrides $ROTSE_REDUX")
-    parser.add_argument("-o", "--outdir", type=str, required=False, default=".", help="reduxdir/outdir directory")
-    parser.add_argument("--tempdir", type=str, required=False, default=None, help="template directory, overrides $ROTSE_TEMPLATE")
-    parser.add_argument("-p", nargs='?', default='noplots', help="generate static plots", dest='plots')
-    parser.add_argument("--loglvl", default=20, type=int, help="log level (0=verbose, 50=Critical)")
+    parser.add_argument('-i', '--config_file', type=str, required=True, help="yaml file containing config dictionary", dest="config")
+    parser.add_argument('-n', '--night', type=str, nargs='+', required=False, default=None, help="night(s) of data")
+    parser.add_argument('-t', '--telescope', type=str, required=False, default='3b', help="which ROTSE-III telescope")
+    parser.add_argument('-f', '--field', type=str, required=False, default=None, help="field containing transient", dest="field")
+    parser.add_argument('-r', '--ra', type=str, required=False, default=None, help="target RA")
+    parser.add_argument('-d', '--dec', type=str, required=False, default=None, help="target DEC")
+    parser.add_argument('--datadir', type=str, required=False, default=None, help="data directory, overrides $ROTSE_DATA")
+    parser.add_argument('--reduxdir', type=str, required=False, default=None, help="output directory, overrides $ROTSE_REDUX")
+    parser.add_argument('-o', '--outdir', type=str, required=False, default='.', help="reduxdir/outdir directory")
+    parser.add_argument('--tempdir', type=str, required=False, default=None, help="template directory, overrides $ROTSE_TEMPLATE")
+    parser.add_argument('-p', nargs='?', default='noplots', help="generate static plots", dest='plots')
+    parser.add_argument('--loglvl', default=20, type=int, help="log level (0=verbose, 50=Critical)")
     args = parser.parse_args()
     return args
 
@@ -78,14 +78,14 @@ def rotse_main(args=None):
             datadir = args.datadir
         else:
             if 'ROTSE_DATA' not in os.environ:
-                sys.exit("must set $ROTSE_DATA environment variable or provide rawdata_dir")
+                sys.exit("Must set $ROTSE_DATA environment variable or provide datadir")
             datadir = os.getenv('ROTSE_DATA')
 
         if args.reduxdir:
             reduxdir = args.reduxdir
         else:
             if 'ROTSE_REDUX' not in os.environ:
-                sys.exit("must set $ROTSE_REDUX environment variable or provide specprod_dir")
+                sys.exit("Must set $ROTSE_REDUX environment variable or provide reduxdir")
             reduxdir = os.getenv('ROTSE_REDUX')
 
         outdir = os.path.join(reduxdir, args.outdir)
