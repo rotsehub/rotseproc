@@ -1,7 +1,7 @@
 """
 I/O functions for supernova data
 """
-import os
+import os, sys
 import numpy as np
 from astropy.table import Table
 import matplotlib.pyplot as plt
@@ -87,9 +87,9 @@ def find_supernova_data(night, telescope, field, datadir):
     dates = dates[start:stop]
 
     # Find image and prod files
-    images=[]
-    prods=[]
-    founddata=[]
+    images = []
+    prods = []
+    founddata = []
     for date in dates:
         year, month, day = date[:2], date[2:4], date[4:]
 
@@ -113,6 +113,14 @@ def find_supernova_data(night, telescope, field, datadir):
 
         except: # No data for this night
             pass
+
+    if len(images) == 0:
+        log.critical("No images were found for this supernova.")
+        sys.exit()
+
+    if len(prods) == 0:
+        log.critical("No cobj files were found for this supernova.")
+        sys.exit()
 
     # Add TLA to field if not present
     if len(field) == 9:

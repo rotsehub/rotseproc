@@ -60,6 +60,7 @@ class Find_Data(pas.PipelineAlg):
                     field = find_supernova_field(ra, dec)
                 if field is None:
                     log.critical("No supernova fields contain data for these coordinates.")
+
             allimages, allprods, field = find_supernova_data(night, telescope, field, datadir)
 
             # Remove image files without corresponding prod file
