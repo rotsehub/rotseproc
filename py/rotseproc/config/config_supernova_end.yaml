@@ -7,8 +7,7 @@ Period: 5.0
 # Time out in seconds
 Timeout: 120.0
 # Pipeline algorithms with relevant QAs
-#Pipeline: [Make_Subimages, Image_Differencing, Choose_Refstars, Photometry]
-Pipeline: [Photometry]
+Pipeline: [Make_Subimages, Image_Differencing, Choose_Refstars, Photometry]
 Algorithms:
     Make_Subimages:
         PixelRadius: 140
