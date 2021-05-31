@@ -7,7 +7,8 @@ import numpy as np
 import datetime
 import rotseproc.qa.qa_plots as plot
 from astropy.io import fits
-from rotseproc.io.qa import write_qa_file, write_qa_fig
+from rotseproc.io.qa import write_qa_file
+from rotseproc.qa import qa_plots
 from rotseproc.qa.qas import MonitoringAlg, QASeverity
 from rotseproc import exceptions, rlogger
 from astropy.time import Time
@@ -110,7 +111,7 @@ class Count_Pixels(MonitoringAlg):
 
         # Write QA output files
         write_qa_file(qafile, retval)
-        write_qa_fig(qafig, retval)
+        qa_plots.plot_Count_Pixels(qafig, im_count)
 
         return retval
 

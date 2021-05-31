@@ -1,32 +1,27 @@
 """
-This includes routines to make plots based on QA output
+Functions to make plots based on QA output
 """
-
 import numpy as np
 from matplotlib import pyplot as plt
 
-def plot_Get_RMS(qa_dict, outfile, plotconf=None, hardplots=False):
+def plot_Count_Pixels(outfile, im_count):
     """
     Plot metrics
 
     Args:
-        qa_dict: dictionary of QA outputs from running qa_algs.Get_RMS
-        outfile: name of figure
+        qa_dict: dictionary of QA outputs from running qa_algs.Count_Pixels
+        outfile: name of output figure figure
     """
-    fig=plt.figure()
+    fig = plt.figure()
 
-    if plotconf:
-        hardplots = qaplot(fig, plotconf, qa_dict, outfile)
+    x_metric = np.array(im_count)
+    y_metric = np.arange(len(x_metric))
 
-    if not hardplots:
-        pass
-    else:
-        x_metric = [] # Get from qa_dict
-        y_metric = []
+    plt.suptitle("Average counts per coadded image")
+    plt.xlabel("Image #")
+    plt.ylabel("Average Pixel Count")
+    plt.plot(x_metric, y_metric, '.')
+    fig.savefig(outfile)
 
-        plt.suptitle("Example Plot")
-        plt.plot(x_metric, y_metric)
-        plt.tight_layout()
-        fig.savefig(outfile)
-
+    return
 
