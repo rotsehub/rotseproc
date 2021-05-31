@@ -159,8 +159,11 @@ class Source_Extraction(pas.PipelineAlg):
 
         # Run sextractor on each coadded image
         coadddir = outdir + '/coadd'
+        os.chdir(coadddir)
         coadds = os.listdir(coadddir+'/image')
         n_files = len(coadds)
+        idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        singularity = "singularity shell --bind /scratch /hpc/applications/rotsesoftware/rotsesoftware.simg"
         for i in range(n_files):
             # Set up output files
             conf = {'sobjdir':'', 'root':'', 'cimg':'', 'sobj':'', 'cobj':''}
@@ -181,10 +184,14 @@ class Source_Extraction(pas.PipelineAlg):
             cmd = 'sex ' + conf['cimg'] + ' -c ' + extract_par + '/rotse3.sex -PARAMETERS_NAME ' + extract_par + '/rotse3.par -FILTER_NAME ' + extract_config + '/gauss_2.0_5x5.conv -PHOT_APERTURES 7 -SATUR_LEVEL ' + satlevel + ' -CATALOG_NAME ' + conf['sobj'] + ' -CHECKIMAGE_NAME ' + skyname
             os.system(cmd)
 
-            # Calibrate sobj file
-           # idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
-           # os.chdir(coadddir)
-           # os.system('{} -32 -e "run_cal,{}"'.format(idl,[coadds[i]]))
+           # Calibrate sobj file
+           # os.system('{} -32 -e "run_cal,{}"'.format(idl, [coadds[i]]))
+
+        # Login to singularity and generate cobj files
+        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        log.info("Logging into singularity. Make cobj files!!!")
+        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        os.system(singularity)
 
         return
 
@@ -398,7 +405,7 @@ class Photometry(pas.PipelineAlg):
                 os.replace(image, os.path.join(nophotdir, os.path.basename(image)))
 
         if len(os.listdir(nophotdir)) == 0:
-            os.remove(nophotdir)
+            os.rmdir(nophotdir)
 
         # Run photometry on all good images
         imgood = "file_search('image/*sub*')"
