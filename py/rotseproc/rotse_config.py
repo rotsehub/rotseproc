@@ -137,8 +137,7 @@ class Config(object):
                  'Make_Subimages'     : paopt_subimage,
                  'Image_Differencing' : paopt_imdiff,
                  'Choose_Refstars'    : paopt_refstars,
-                 'Photometry'         : paopt_phot
-                }
+                 'Photometry'         : paopt_phot}
 
         def getPAConfigFromFile(PA,algs):
             def mergeDicts(source,dest):
@@ -204,9 +203,13 @@ class Config(object):
         referencemetrics = []        
         for PA in self.palist:
             for qa in self.qalist[PA]: #- individual QA for that PA
-                pa_yaml = PA.upper()
                 params = self._qaparams(qa)
-                qaopts[qa] = {'Program':self.program, 'param':params}
+                outfiles = self.io_qa(qa)
+                qaopts[qa] = {'program':self.program.upper(),
+                              'paname':PA.upper(),
+                              'param':params,
+                              'qafile':outfiles[0],
+                              'qafig':outfiles[1]}
 
                 if self.reference != None:
                     refkey = qaopts[qa]['refKey']
@@ -235,8 +238,7 @@ class Config(object):
         filemap={'Find_Data'         : 'images',
                  'Coaddition'        : 'coadd',
                  'Source_Extraction' : 'extract',
-                 'Make_Subimages'    : 'subimage'
-                 }
+                 'Make_Subimages'    : 'subimage'}
 
         if paname in filemap:
             outfile = findfile() # Update when needed
@@ -251,12 +253,13 @@ class Config(object):
         """
         Specify the filenames: files for the given qa output
         """
-        filemap={'Get_RMS': 'getrms'
-                 }
+        filemap={'Count_Pixels': 'countpix'}
 
         if qaname in filemap:
-            outfile = [] # Need findfile function
-            outfig = []
+            outfile = findfile('qafile', self.outdir)
+            outfile = outfile.replace('qafile', filemap[qaname])
+            outfig = findfile('qafig', self.outdir)
+            outfig = outfig.replace('qafig', filemap[qaname])
         else:
             raise IOError("QA name does not match any file type. Check QA name in config for {}".format(qaname))
 

@@ -15,8 +15,8 @@ Algorithms:
         QA: {}
     Coaddition:
         QA:
-            Get_RMS:
-                PARAMS: {NOISE_NORMAL_RANGE: [-1.5,1.5], NOISE_WARN_RANGE: [-2.0,2.0], NOISE_REF: [0.]}
+            Count_Pixels:
+                PARAMS: {COUNT_NORMAL_RANGE: [-1.5,1.5], COUNT_WARN_RANGE: [-2.0,2.0], COUNT_REF: [0.]}
     Source_Extraction:
         QA: {}
     Make_Subimages:

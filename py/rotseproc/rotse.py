@@ -70,7 +70,7 @@ def runpipeline(pl, convdict, conf):
     QAresults=[] 
     import numpy as np
     qa=None
-    qas=[['Get_RMS'],[],[]]
+    qas=[[],['Count_Pixels'],[],[],[],[],[]]
 
     for s,step in enumerate(pl):
         log.info("Starting to run step {}".format(paconf[s]["StepName"]))
@@ -96,8 +96,8 @@ def runpipeline(pl, convdict, conf):
                 else:
                     res=qa(inp,**qargs)
 
-                if "qafile" in qargs:
-                    qawriter.write_qa_ql(qargs["qafile"],res)
+#                if "qafile" in qargs:
+#                    qawriter.write_qa_file(qargs["qafile"],res)
                 log.debug("{} {}".format(qa.name,inp))
                 qaresult[qa.name]=res
                 schemaStep.addParams(res['PARAMS'])

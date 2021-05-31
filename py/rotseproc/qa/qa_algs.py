@@ -7,6 +7,7 @@ import numpy as np
 import datetime
 import rotseproc.qa.qa_plots as plot
 from astropy.io import fits
+from rotseproc.io.qa import write_qa_file, write_qa_fig
 from rotseproc.qa.qas import MonitoringAlg, QASeverity
 from rotseproc import exceptions, rlogger
 from astropy.time import Time
@@ -44,10 +45,10 @@ def get_inputs(*args,**kwargs):
 
     return inputs
 
-class Get_RMS(MonitoringAlg):
+class Count_Pixels(MonitoringAlg):
     def __init__(self, name, config, logger=None):
         if name is None or name.strip() == "":
-            name="Get_RMS"
+            name="Count_Pixels"
         kwargs = config['kwargs']
         parms = kwargs['param']
         key = kwargs['refKey'] if 'refKey' in kwargs else "NOISE"
@@ -86,16 +87,30 @@ class Get_RMS(MonitoringAlg):
         paname     = inputs['paname']
         program    = inputs['program']
         refmetrics = inputs['refmetrics']
+        qafile     = inputs['qafile']
+        qafig      = inputs['qafig']
 
-        # Calculate noise
-        noise = 0.
-     
+        # Calculate average pixel value per image
+        im_count = []
+        for i in range(len(images)):
+            pixdata = fits.open(images[i])[0].data
+            pixmed = np.median(pixdata)
+            im_count.append(pixmed)
+
+        # Calculate average pixel value of all images
+        count = np.median(im_count)
+
         # Set up output dictionary 
         retval = {}
         retval["PROGRAM"] = program
         retval["PANAME"]  = paname
         retval["PARAMS"]  = param
-        retval["METRICS"] = {"NOISE":noise}
+        retval["METRICS"] = {"COUNT" : str(count),
+                             "COUNT_PER_IMAGE" : str(im_count)}
+
+        # Write QA output files
+        write_qa_file(qafile, retval)
+        write_qa_fig(qafig, retval)
 
         return retval
 
