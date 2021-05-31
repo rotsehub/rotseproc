@@ -143,23 +143,3 @@ def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
 
     return images, prods, field
 
-def plot_light_curve(lc_data_file, dumpfile):
-    """
-    Plot supernova light curve and output to pdf
-    """
-    # Get data to plot from file
-    data  = np.loadtxt(lc_data_file, unpack=True)
-    mjd   = data[0]
-    mag   = data[2]
-    loerr = mag - data[3]
-    hierr = data[4] - mag
-
-    # Generate light curve pdf
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax = plot_2d(ax, mjd, mag, "MJD", "ROTSE Magnitude", yerr=[loerr,hierr])
-    plt.gca().invert_yaxis()
-    fig.savefig(dumpfile)
-
-    return
-
