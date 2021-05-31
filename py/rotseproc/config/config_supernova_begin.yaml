@@ -16,7 +16,7 @@ Algorithms:
     Coaddition:
         QA:
             Count_Pixels:
-                PARAMS: {COUNT_NORMAL_RANGE: [-1.5,1.5], COUNT_WARN_RANGE: [-2.0,2.0], COUNT_REF: [0.]}
+                PARAMS: {COUNT_NORMAL_RANGE: [-100.,100.], COUNT_WARN_RANGE: [-200.,200.], COUNT_REF: [10.]}
     Source_Extraction:
         QA: {}
 
