@@ -5,7 +5,6 @@ import os, sys
 import numpy as np
 from astropy.table import Table
 import matplotlib.pyplot as plt
-from rotseproc.plotlib import plot_2d
 from rotseproc import rlogger
 
 rlog = rlogger.rotseLogger("ROTSE-III",20)

@@ -2,6 +2,7 @@
 Functions to make plots based on PA output
 """
 from matplotlib import pyplot as plt
+from rotseproc.plotlib import plot_2d
 
 def plot_light_curve(mjd, mag, magerr, dumpfile):
     """
