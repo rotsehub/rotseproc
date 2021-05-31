@@ -234,12 +234,12 @@ class Make_Subimages(pas.PipelineAlg):
                 field = ims[0][7:19]
 
             try:
-                imfile = glob.glob(imdir+'/*{}*'.format(field))[0]
+                imfile = glob.glob(imdir + '/*{}*'.format(field))[0]
                 im = os.path.split(imfile)[1]
                 imout = os.path.join(coadddir, 'image', im)
                 copyfile(imfile, imout)
     
-                prodfile = glob.glob(proddir+'/*{}*'.format(field))[0]
+                prodfile = glob.glob(proddir + '/*{}*'.format(field))[0]
                 prod = os.path.split(prodfile)[1]
                 prodout = os.path.join(coadddir, 'prod', prod)
                 copyfile(prodfile, prodout)
@@ -379,16 +379,32 @@ class Photometry(pas.PipelineAlg):
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
         subdir = os.path.join(outdir, 'sub')
         imdir = os.path.join(subdir, 'image')
-        images = "file_search('{}/*sub*')".format(imdir)
+        images = glob.glob(imdir + '/*sub*')
         os.chdir(subdir)
-        os.system('{} -32 -e "run_phot,{}"'.format(idl, images))
 
-        # Make sure photometry runs, move images that don't work
-        if not os.path.exists(os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')):
-            log.info("Rerunning photometry on good images")
-            os.mkdir(os.path.join(subdir, 'nophot'))
+        # Make sure photometry runs on each image, move images that don't work
+        nophotdir = os.path.join(subdir, 'nophot')
+        os.mkdir(nophotdir)
+        for image in images:
+            night = os.path.basename(image)[:6]
+            imfile = "file_search('image/{}*sub*')".format(night)
+            os.system('{} -32 -e "run_phot,{}"'.format(idl, imfile))
 
-            
+            lcfile = os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')
+            if os.path.exists(lcfile):
+                os.remove(lcfile)
+            else:
+                os.replace(image, os.path.join(nophotdir, os.path.basename(image)))
+
+        if len(os.listdir(nophotdir)) == 0:
+            os.remove(nophotdir)
+
+        # Run photometry on all good images
+        imgood = "file_search('image/*sub*')"
+        os.system('{} -32 -e "run_phot,{}"'.format(idl, imgood))
+
+        ndata = len(glob.glob(imdir + '/*sub*'))
+        log.info("Ran photometry on {} nights of data".format(ndata))
 
         # Output light curve
         from rotseproc.io.supernova import plot_light_curve
