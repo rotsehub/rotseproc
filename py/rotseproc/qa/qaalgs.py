@@ -101,7 +101,7 @@ class Count_Pixels(MonitoringAlg):
         reference = param['COUNT_REF']
         norm_range = param['COUNT_NORMAL_RANGE']
         warn_range = param['COUNT_WARN_RANGE']
-        status = check_QA_status(count, param['COUNT_REF'], reference, norm_range, warn_range)
+        status = check_QA_status(count, reference, norm_range, warn_range)
 
         # Set up output dictionary 
         retval = {}
