@@ -383,6 +383,13 @@ class Photometry(pas.PipelineAlg):
         os.chdir(subdir)
         os.system('{} -32 -e "run_phot,{}"'.format(idl, images))
 
+        # Make sure photometry runs, move images that don't work
+        if not os.path.exists(os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')):
+            log.info("Rerunning photometry on good images")
+            os.mkdir(os.path.join(subdir, 'nophot'))
+
+            
+
         # Output light curve
         from rotseproc.io.supernova import plot_light_curve
         lc_data_file = os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')

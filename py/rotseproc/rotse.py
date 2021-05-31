@@ -11,7 +11,7 @@ import astropy.io.fits as fits
 from rotseproc import rlogger
 from rotseproc import heartbeat as HB
 from rotseproc.merger import QAMerger
-from rotseproc.pa import procalgs
+from rotseproc.pa import paalgs
 
 def getobject(conf,log):
     rlog = rlogger.rotseLogger("ROTSE-III",20)

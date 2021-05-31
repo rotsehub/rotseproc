@@ -332,13 +332,13 @@ class Palist(object):
 
     def _palist(self):
         palist=self.thislist
-        self.pamodule='rotseproc.pa.procalgs'
+        self.pamodule='rotseproc.pa.paalgs'
         return palist       
 
     def _qalist(self):
         qalist={}
         for PA in self.thislist:
             qalist[PA]=self.algorithms[PA]['QA'].keys()
-        self.qamodule='rotseproc.qa.qa_algs'
+        self.qamodule='rotseproc.qa.qaalgs'
         return qalist
 

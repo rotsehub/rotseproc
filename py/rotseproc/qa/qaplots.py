@@ -9,7 +9,7 @@ def plot_Count_Pixels(outfile, im_count):
     Plot metrics
 
     Args:
-        qa_dict: dictionary of QA outputs from running qa_algs.Count_Pixels
+        qa_dict: dictionary of QA outputs from running qaalgs.Count_Pixels
         outfile: name of output figure figure
     """
     fig = plt.figure()
