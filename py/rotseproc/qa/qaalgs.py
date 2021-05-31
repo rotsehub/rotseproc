@@ -100,11 +100,18 @@ class Count_Pixels(MonitoringAlg):
         # Calculate average pixel value of all images
         count = np.median(im_count)
 
+        # Compare count to reference value and get QA status
+        reference = params['COUNT_REF']
+        norm_range = params['COUNT_NORMAL_RANGE']
+        warn_range = params['COUNT_WARN_RANGE']
+        status = check_QA_status(count, params['COUNT_REF'], reference, norm_range, warn_range)
+
         # Set up output dictionary 
         retval = {}
         retval["PROGRAM"] = program
         retval["PANAME"]  = paname
         retval["PARAMS"]  = param
+        retval["STATUS"]  = status
         retval["METRICS"] = {"COUNT" : str(count),
                              "COUNT_PER_IMAGE" : str(im_count)}
 

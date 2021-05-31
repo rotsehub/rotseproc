@@ -5,6 +5,22 @@ from rotseproc import exceptions
 from enum import Enum
 from astropy.io import fits
 
+def check_QA_status(metric, reference, norm_range, warn_range):
+    """
+    Compare QA metric to reference value and return status
+    """
+    # Calculate difference between reference value and metric
+    diff = reference - metric
+
+    # Check QA status
+    if diff >= norm_range[0] and diff <= norm_range[1]:
+        status = 'NORMAL'
+    elif diff >= warn_range[0] and diff <= warn_range[1]:
+        status = 'WARNING'
+    else:
+        status = 'ALARM'
+
+    return status
 
 class QASeverity(Enum):
     ALARM=30
