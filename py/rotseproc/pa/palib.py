@@ -8,17 +8,11 @@ from rotseproc import exceptions, rlogger
 rlog = rlogger.rotseLogger("ROTSE-III",20)
 log = rlog.getlog()
 
-def example_function(image):
+def get_light_curve_data(lcfile):
     """
-    Example function to evaluate an image
-
-    Arguments:
-        image
-
-    Returns:
-        output
+    Get mjd, mag, and magerr from light curve file
     """
-    # Do something to the image
-    output = []
-    return output
+    
+
+    return mjd, mag, magerr
 

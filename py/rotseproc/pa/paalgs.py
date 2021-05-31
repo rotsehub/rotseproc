@@ -5,6 +5,7 @@ import os, sys
 import glob
 import numpy as np
 from astropy.io import fits 
+from astropy.table import Table
 from rotseproc.pa import pas
 from rotseproc import exceptions, rlogger
 
@@ -406,10 +407,19 @@ class Photometry(pas.PipelineAlg):
         ndata = len(glob.glob(imdir + '/*sub*'))
         log.info("Ran photometry on {} nights of data".format(ndata))
 
-        # Output light curve
-        from rotseproc.io.supernova import plot_light_curve
+        # Output light curve data and plot
+        from .palib import get_light_curve_data
+        from .paplot import plot_light_curve
+
         lc_data_file = os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')
-        plot_light_curve(lc_data_file, dumpfile)
+        mjd, mag, magerr = get_supernova_data(lc_data_file)
+        output = Table()
+        output['MJD'] = mjd
+        output['ROTSE_MAG'] = mag
+        output['MAG_ERR'] = magerr
+        output.write(outdir + 'lightcurve.fits')
+
+        plot_light_curve(mjd, mag, magerr, dumpfile)
 
         return
 

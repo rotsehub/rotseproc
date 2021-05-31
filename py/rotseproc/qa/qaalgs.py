@@ -101,9 +101,9 @@ class Count_Pixels(MonitoringAlg):
         count = np.median(im_count)
 
         # Compare count to reference value and get QA status
-        reference = params['COUNT_REF']
-        norm_range = params['COUNT_NORMAL_RANGE']
-        warn_range = params['COUNT_WARN_RANGE']
+        reference = param['COUNT_REF']
+        norm_range = param['COUNT_NORMAL_RANGE']
+        warn_range = param['COUNT_WARN_RANGE']
         status = check_QA_status(count, params['COUNT_REF'], reference, norm_range, warn_range)
 
         # Set up output dictionary 
