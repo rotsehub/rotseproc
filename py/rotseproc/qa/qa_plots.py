@@ -14,8 +14,8 @@ def plot_Count_Pixels(outfile, im_count):
     """
     fig = plt.figure()
 
-    x_metric = np.array(im_count)
-    y_metric = np.arange(len(x_metric))
+    x_metric = np.arange(len(x_metric))
+    y_metric = np.array(im_count)
 
     plt.suptitle("Average counts per coadded image")
     plt.xlabel("Image #")
