@@ -408,11 +408,11 @@ class Photometry(pas.PipelineAlg):
         log.info("Ran photometry on {} nights of data".format(ndata))
 
         # Output light curve data and plot
-        from .palib import get_light_curve_data
-        from .paplot import plot_light_curve
+        from rotseproc.pa.palib import get_light_curve_data
+        from rotseproc.pa.paplots import plot_light_curve
 
         lc_data_file = os.path.join(subdir, 'lightcurve_subtract_target_psf.dat')
-        mjd, mag, magerr = get_supernova_data(lc_data_file)
+        mjd, mag, magerr = get_light_curve_data(lc_data_file)
         output = Table()
         output['MJD'] = mjd
         output['ROTSE_MAG'] = mag

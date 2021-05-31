@@ -7,7 +7,7 @@ import numpy as np
 import datetime
 from astropy.io import fits
 from rotseproc.io.qa import write_qa_file
-from rotseproc.qa import qaplots
+from rotseproc.qa import check_QA_status, qaplots
 from rotseproc.qa.qas import MonitoringAlg, QASeverity
 from rotseproc import exceptions, rlogger
 from astropy.time import Time
@@ -91,11 +91,8 @@ class Count_Pixels(MonitoringAlg):
         qafig      = inputs['qafig']
 
         # Calculate average pixel value per image
-        im_count = []
-        for i in range(len(images)):
-            pixdata = fits.open(images[i])[0].data
-            pixmed = np.median(pixdata)
-            im_count.append(pixmed)
+        from rotseproc.qa.qalib import count_avg_pixels
+        im_count = count_avg_pixels(images)
 
         # Calculate average pixel value of all images
         count = np.median(im_count)

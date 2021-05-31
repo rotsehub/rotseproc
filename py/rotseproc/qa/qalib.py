@@ -1,20 +1,19 @@
 """
 simple low level library functions for QAs
 """
-import os
 import numpy as np
+from astropy.io import fits
 
-def example_function(image):
+def count_avg_pixels(images):
     """
-    Example function to evaluate an image
-
-    Arguments:
-        image
-
-    Returns:
-        output
+    Count pixels for each coadded image
     """
-    # Do something to the image
-    output = []
-    return output
+    # Calculate average pixel value per image
+    im_count = []
+    for i in range(len(images)):
+        pixdata = fits.open(images[i])[0].data
+        pixmed = np.median(pixdata)
+        im_count.append(pixmed)
+
+    return im_count
 
