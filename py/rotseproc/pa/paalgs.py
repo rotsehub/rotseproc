@@ -421,6 +421,6 @@ class Photometry(pas.PipelineAlg):
 
         plot_light_curve(mjd, mag, magerr, dumpfile)
 
-	return
+        return
 
 

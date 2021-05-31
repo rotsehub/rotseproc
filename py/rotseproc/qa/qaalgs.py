@@ -7,8 +7,8 @@ import numpy as np
 import datetime
 from astropy.io import fits
 from rotseproc.io.qa import write_qa_file
-from rotseproc.qa import check_QA_status, qaplots
-from rotseproc.qa.qas import MonitoringAlg, QASeverity
+from rotseproc.qa import qaplots
+from rotseproc.qa.qas import check_QA_status, MonitoringAlg, QASeverity
 from rotseproc import exceptions, rlogger
 from astropy.time import Time
 from rotseproc.qa import qalib
