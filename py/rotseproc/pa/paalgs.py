@@ -417,7 +417,7 @@ class Photometry(pas.PipelineAlg):
         output['MJD'] = mjd
         output['ROTSE_MAG'] = mag
         output['MAG_ERR'] = magerr
-        output.write(outdir + 'lightcurve.fits')
+        output.write(os.path.join(outdir, 'lightcurve.fits'))
 
         plot_light_curve(mjd, mag, magerr, dumpfile)
 
