@@ -2,9 +2,11 @@
 
 ## Example run for generating a supernova light curve in ManeFrame:
 
-### Must first run source ```/scratch/group/astro/rotse/environment/rotse_environ.sh```
+### Must first set up your environment:
 
-This sets up your ROTSE environment:
+```source /scratch/group/astro/rotse/environment/rotse_environ.sh```
+
+This loads the following environment variables and sets up your paths
 
 * ```$ROTSE_DATA```     : data directory
 * ```$ROTSE_REDUX```    : output directory
@@ -29,11 +31,11 @@ Night ```130725``` (7-25-2013) is the explosion night of sn2013ej
 
 Using these inputs, the pipeline runs the following processes:
 
-* Find_Data          : find data for the appropriate dates and coordinates
-* Coaddition         : coadd the preprocessed images for each night
-* Source_Extraction  : run sextractor and calibration to generate sobj and then cobj files
-* Make_Subimages     : make images into smaller subimages around the supernova
-* Image_Differencing : perform image differencing using a template image
-* Choose_Refstars    : choose reference stars for photometry
-* Photometry         : so photometry on all images and produce a light curve
+* **Find_Data**          : find data for the appropriate dates and coordinates
+* **Coaddition**         : coadd the preprocessed images for each night
+* **Source_Extraction**  : run sextractor and calibration to generate sobj and then cobj files
+* **Make_Subimages**     : make images into smaller subimages around the supernova
+* **Image_Differencing** : perform image differencing using a template image
+* **Choose_Refstars**    : choose reference stars for photometry
+* **Photometry**         : so photometry on all images and produce a light curve
 
