@@ -2,7 +2,7 @@
 
 ## Example run for generating a supernova light curve in ManeFrame:
 
-### Must first set up your environment:
+### Set up your environment:
 
 ```source /scratch/group/astro/rotse/environment/rotse_environ.sh```
 
