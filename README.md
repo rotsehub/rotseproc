@@ -29,6 +29,8 @@ Night ```130725``` (7-25-2013) is the explosion night of sn2013ej
 
 ```15:45:31.00``` is the DEC of sn2013ej
 
+for positive DEC, don't include ```+```, for negative DEC, use e.g. ```-d=-15:45:31.00```
+
 Using these inputs, the pipeline runs the following processes:
 
 * **Find_Data**          : find data for the appropriate dates and coordinates
@@ -71,9 +73,9 @@ Click ```Object``` then ```Choose Refstars...```
 
 Use either ```Select by Cursor``` or ```Auto Select``` to choose reference stars on the new GUI
 
-You will want around 10 reference stars, you can toggle ```Radius (arcmin)``` and ```Minimum S/N```
+You will want around 10-12 (at least 10) reference stars, you can toggle ```Radius (arcmin)``` and ```Minimum S/N```
 
-Once you have about 10 reference stars, click ```Done```
+Once you have about a dozen reference stars, click ```Done```
 
 Click ```File``` then ```Save Target/Refstar RA DEC...```
 
