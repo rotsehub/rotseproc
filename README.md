@@ -71,7 +71,7 @@ Click ```Object``` then ```Choose Refstars...```
 
 Use either ```Select by Cursor``` or ```Auto Select``` to choose reference stars on the new GUI
 
-You will want around 10 reference stars, you can toggle ```Radius (arcmin) and ```Minimum S/N```
+You will want around 10 reference stars, you can toggle ```Radius (arcmin)``` and ```Minimum S/N```
 
 Once you have about 10 reference stars, click ```Done```
 
