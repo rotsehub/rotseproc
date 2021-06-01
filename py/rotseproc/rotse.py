@@ -61,7 +61,7 @@ def runpipeline(pl, convdict, conf):
 
     rlog=rlogger.rotseLogger()
     log=rlog.getlog()
-    hb=HB.Heartbeat(log,conf["Period"],conf["Timeout"])
+    hb=HB.Heartbeat(log,conf["Timeout"])
 
     inp=None
     paconf=conf["Pipeline"]
@@ -137,20 +137,14 @@ def setup_pipeline(config):
     telescope=config["Telescope"]
     flavor=config["Flavor"]
     program=config["Program"]
-    hbeat=HB.Heartbeat(log,config["Period"],config["Timeout"])
-    if config["Timeout"] > 200.0:
+    hbeat=HB.Heartbeat(log,config["Timeout"])
+    if config["Timeout"] > 600.0:
         log.warning("Heartbeat timeout exceeding 200.0 seconds")
-    dumpintermediates=False
-    if "DumpIntermediates" in config:
-        dumpintermediates=config["DumpIntermediates"]
 
     if "basePath" in config:
         basePath=config["basePath"]
 
     convdict={}
-
-    if dumpintermediates:
-        convdict["DumpIntermediates"]=dumpintermediates
 
     images=None
     pipeline=[]

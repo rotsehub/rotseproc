@@ -2,9 +2,8 @@ from threading import Thread
 import time
 
 class Heartbeat:
-    def __init__(self,logger,beatinterval,timeout,precision=0.1,level=20):
+    def __init__(self,logger,timeout,precision=0.1,level=20):
         self.__logger__=logger
-        self.__bint__=beatinterval
         self.__timeout__=timeout
         self.__message__="Heartbeat"
         self.__thread__=None
@@ -25,11 +24,6 @@ class Heartbeat:
         else:
             ttimeout=self.__tstart__+timeout
             self.__timeout__=timeout
-        if bint is None:
-            tstep=self.__tstart__+self.__bint__
-        else:
-            tstep=self.__tstart__+bint
-            self.__bint__=bint
         if self.__running__:
             self.stop()
         self.__logger__.log(self.__level,self.__message__)
@@ -43,17 +37,13 @@ class Heartbeat:
     def doloop(self):
         tnow=self.__tstart__
         ttimeout=self.__tstart__+self.__timeout__
-        beattime=self.__tstart__+self.__bint__
         while(self.__keep_running__ and tnow<ttimeout):
             time.sleep(self.__precision__)
             tn=time.time()
             tcheck=tn-self.__tstart__
-            if tcheck<0 or tcheck>3000 : #time change >+1hrs -beatinterval
+            if tcheck<0 or tcheck>3000 : #time change >+1hrs
                 self.__logger__.log(self.__level+10,"Clock skew detected")
             tnow=tn
-            if tnow>=beattime:
-                beattime+=self.__bint__
-                self.__logger__.log(self.__level,self.__message__)
     def stop(self,msg=None):
         self.__keep_running__=False
         self.__thread__.join()

@@ -270,7 +270,6 @@ class Config(object):
         config: rotseproc.config.Config object
         """
         self.log.debug("Building Full Configuration")
-        self.period = self.conf["Period"]
         self.timeout = self.conf["Timeout"]
 
         #- Get reference metrics from template json file
@@ -282,7 +281,6 @@ class Config(object):
         outconfig['Telescope'] = self.telescope
         outconfig['Flavor']    = self.flavor
         outconfig['Program']   = self.program
-        outconfig['Period']    = self.period
 
         pipeline = []
         for ii,PA in enumerate(self.palist):
