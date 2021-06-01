@@ -48,7 +48,6 @@ def copy_preproc(images, prods, outdir):
     proddir = os.path.join(preprocdir, 'prod')
 
     # Make directories
-    os.makedirs(outdir)
     os.makedirs(preprocdir)
     os.makedirs(imagedir)
     os.makedirs(proddir)

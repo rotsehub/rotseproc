@@ -121,11 +121,11 @@ class Config(object):
         """
         paopt_find     = {'Night':self.night, 'Telescope':self.telescope, 'Field':self.field, 'RA':self.ra,
                           'DEC':self.dec, 'TimeBeforeDiscovery': self.t_before, 'TimeAfterDiscovery': self.t_after,
-                          'Program':self.program, 'datadir':self.datadir, 'outdir':self.outdir}
+                          'Program':self.program, 'datadir':self.datadir, 'tempdir':self.tempdir, 'outdir':self.outdir}
         paopt_coadd    = {'outdir':self.outdir}
         paopt_extract  = {'outdir':self.outdir}
         paopt_subimage = {'Program':self.program, 'Field':self.field, 'Telescope':self.telescope, 'RA':self.ra,
-                          'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir, 'tempdir':self.tempdir}
+                          'DEC':self.dec, 'PixelRadius':self.pixrad, 'outdir':self.outdir}
         paopt_imdiff   = {'outdir':self.outdir}
         paopt_refstars = {'RA':self.ra, 'DEC':self.dec, 'outdir':self.outdir}
         paopt_phot     = {'outdir':self.outdir, 'dumpfile':self.dump_pa('Photometry')}

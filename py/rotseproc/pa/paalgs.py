@@ -43,16 +43,21 @@ class Find_Data(pas.PipelineAlg):
         dec       = kwargs['DEC']
         t_before  = kwargs['TimeBeforeDiscovery']
         t_after   = kwargs['TimeAfterDiscovery']
-        outdir    = kwargs['outdir']
         datadir   = kwargs['datadir']
+        datadir   = kwargs['datadir']
+        tempdir   = kwargs['tempdir']
+        outdir   = kwargs['outdir']
 
-        return self.run_pa(program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir)
+        return self.run_pa(program, night, telescope, field, ra, dec, t_before, t_after, datadir, tempdir, outdir)
 
-    def run_pa(self, program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir):
+    def run_pa(self, program, night, telescope, field, ra, dec, t_before, t_after, datadir, tempdir, outdir):
         # Get data
         if program == 'supernova':
-            from rotseproc.io.supernova import find_supernova_field, find_supernova_data
+            from rotseproc.io.supernova import find_supernova_field, find_supernova_data, find_reference_image
             from rotseproc.io.preproc import match_image_prod
+
+            # Make output directory
+            os.makedirs(outdir)
 
             # Find supernova data
             if field is None:
@@ -64,6 +69,9 @@ class Find_Data(pas.PipelineAlg):
                     log.critical("No supernova fields contain data for these coordinates.")
 
             allimages, allprods, field = find_supernova_data(night, telescope, field, t_before, t_after, datadir)
+
+            # Find reference image
+            find_reference_image(telescope, field, tempdir, outdir)
 
             # Remove image files without corresponding prod file
             images, prods = match_image_prod(allimages, allprods, telescope, field)
@@ -112,13 +120,8 @@ class Coaddition(pas.PipelineAlg):
         os.chdir(preprocdir)
         os.system('{} -32 -e "coadd_all,{}"'.format(idl, files))
 
-        # Make coadd directories
-        coadddir = outdir + '/coadd/'
-        os.mkdir(coadddir)
-        os.mkdir(coadddir + 'image')
-        os.mkdir(coadddir + 'prod')
-
         # Move coadds to coadd directory
+        coadddir = outdir + '/coadd/'
         coadds = glob.glob('*000-000_c.fit')
         for c in coadds:
             os.replace(c, os.path.join(coadddir, 'image', c))
@@ -227,38 +230,9 @@ class Make_Subimages(pas.PipelineAlg):
         return self.run_pa(program, telescope, field, ra, dec, pixrad, outdir, tempdir)
 
     def run_pa(self, program, telescope, field, ra, dec, pixrad, outdir, tempdir):
-        # If running on a supernova, find template file
-        if program == 'supernova':
-            from shutil import copyfile
-
-            coadddir = outdir + '/coadd/'
-            refdir = os.path.join(tempdir, telescope, 'reference')
-            imdir = os.path.join(refdir, 'image')
-            proddir = os.path.join(refdir, 'prod')
-
-            # Find field if not provided
-            if field is None:
-                ims = os.listdir(coadddir+'image')
-                field = ims[0][7:19]
-
-            try:
-                imfile = glob.glob(imdir + '/*{}*'.format(field))[0]
-                im = os.path.split(imfile)[1]
-                imout = os.path.join(coadddir, 'image', im)
-                copyfile(imfile, imout)
-    
-                prodfile = glob.glob(proddir + '/*{}*'.format(field))[0]
-                prod = os.path.split(prodfile)[1]
-                prodout = os.path.join(coadddir, 'prod', prod)
-                copyfile(prodfile, prodout)
-    
-                log.info("Found reference image {}".format(im))
-
-            except:
-                raise exceptions.ReferenceException("No reference image for {}".format(field))
-
         # Make subimages
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
+        coadddir = outdir + '/coadd/'
         files = os.listdir(coadddir+'/image')
         os.chdir(coadddir)
         os.system('{} -32 -e "make_rotse3_subimage,{},racent={},deccent={},pixrad={}"'.format(idl, files, ra, dec, pixrad))

@@ -2,10 +2,12 @@
 I/O functions for supernova data
 """
 import os, sys
+import glob
+from shutil import copyfile
 import numpy as np
 from astropy.table import Table
 import matplotlib.pyplot as plt
-from rotseproc import rlogger
+from rotseproc import exceptions, rlogger
 
 rlog = rlogger.rotseLogger("ROTSE-III",20)
 log = rlog.getlog()
@@ -141,4 +143,39 @@ def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
     log.info("Found data in {} for {} nights".format(field, len(set(founddata))))
 
     return images, prods, field
+
+def find_reference_image(telescope, field, tempdir, outdir):
+    """
+    Find reference image for provided supernova field and copy to coadd dir
+    """
+    # Make coadd directories
+    coadddir = outdir + '/coadd/'
+    os.mkdir(coadddir)
+    os.mkdir(coadddir + 'image')
+    os.mkdir(coadddir + 'prod') 
+
+    # Find reference directory
+    refdir = os.path.join(tempdir, telescope, 'reference')
+    imdir = os.path.join(refdir, 'image')
+    proddir = os.path.join(refdir, 'prod')
+
+    # Find reference image
+    try:
+        imfile = glob.glob(imdir + '/*{}*'.format(field))[0]
+        im = os.path.split(imfile)[1]
+        imout = os.path.join(coadddir, 'image', im)
+        copyfile(imfile, imout)
+
+        prodfile = glob.glob(proddir + '/*{}*'.format(field))[0]
+        prod = os.path.split(prodfile)[1]
+        prodout = os.path.join(coadddir, 'prod', prod)
+        copyfile(prodfile, prodout)
+
+        log.info("Found reference image {}".format(im))
+
+        return
+
+    except:
+        raise exceptions.ReferenceException("No reference image for {}".format(field))
+        return
 
