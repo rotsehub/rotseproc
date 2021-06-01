@@ -39,6 +39,50 @@ Using these inputs, the pipeline runs the following processes:
 * **Choose_Refstars**    : choose reference stars for photometry
 * **Photometry**         : do photometry on all images and produce a light curve
 
+#### You will have to do the following steps while the pipeline is running:
+
+##### Generate cobj files:
+
+This happens at the end of **Source_Extraction**, you will see a log message
+
+The pipeline automatically logs you into singularity
+
+```source $ROTSE_ENVIRON/rotse_environ_old.sh``` set up old environment
+
+```idl -32``` log into idl
+
+```f = file_search('image/*')``` find files
+
+```run_cal, f``` run calibration
+
+```exit``` log out of idl
+
+```exit``` log out of singularity
+
+##### Choose reference stars:
+
+A GUI will pop up allowing you to choose stars
+
+Click ```Object``` then ```Choose Target...```
+
+Click ```Done``` on the new GUI
+
+Click ```Object``` then ```Choose Refstars...```
+
+Use either ```Select by Cursor``` or ```Auto Select``` to choose reference stars on the new GUI
+
+You will want around 10 reference stars, you can toggle ```Radius (arcmin) and ```Minimum S/N```
+
+Once you have about 10 reference stars, click ```Done```
+
+Click ```File``` then ```Save Target/Refstar RA DEC...```
+
+Click ```OK``` on the new GUI
+
+Exit the GUI
+
+##### The pipeline will take care of everything else
+
 #### Outputs:
 
 * ```preproc```         : preprocessed images directory
