@@ -144,15 +144,15 @@ def find_supernova_data(night, telescope, field, t_before, t_after, datadir):
 
     return images, prods, field
 
-def find_reference_image(telescope, field, tempdir, outdir):
+def find_reference_image(telescope, tempdir, outdir):
     """
     Find reference image for provided supernova field and copy to coadd dir
     """
-    # Make coadd directories
+    # Find supernova field
     coadddir = outdir + '/coadd/'
-    os.mkdir(coadddir)
-    os.mkdir(coadddir + 'image')
-    os.mkdir(coadddir + 'prod') 
+    coaddimdir = coadddir + '/image'
+    coaddimages = os.listdir(coaddimdir)
+    field = os.path.split(coaddimages[0])[1][7:19]
 
     # Find reference directory
     refdir = os.path.join(tempdir, telescope, 'reference')

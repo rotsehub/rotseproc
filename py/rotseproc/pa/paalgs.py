@@ -45,19 +45,15 @@ class Find_Data(pas.PipelineAlg):
         t_after   = kwargs['TimeAfterDiscovery']
         datadir   = kwargs['datadir']
         datadir   = kwargs['datadir']
-        tempdir   = kwargs['tempdir']
         outdir   = kwargs['outdir']
 
-        return self.run_pa(program, night, telescope, field, ra, dec, t_before, t_after, datadir, tempdir, outdir)
+        return self.run_pa(program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir)
 
-    def run_pa(self, program, night, telescope, field, ra, dec, t_before, t_after, datadir, tempdir, outdir):
+    def run_pa(self, program, night, telescope, field, ra, dec, t_before, t_after, datadir, outdir):
         # Get data
         if program == 'supernova':
-            from rotseproc.io.supernova import find_supernova_field, find_supernova_data, find_reference_image
+            from rotseproc.io.supernova import find_supernova_field, find_supernova_data
             from rotseproc.io.preproc import match_image_prod
-
-            # Make output directory
-            os.makedirs(outdir)
 
             # Find supernova data
             if field is None:
@@ -69,9 +65,6 @@ class Find_Data(pas.PipelineAlg):
                     log.critical("No supernova fields contain data for these coordinates.")
 
             allimages, allprods, field = find_supernova_data(night, telescope, field, t_before, t_after, datadir)
-
-            # Find reference image
-            find_reference_image(telescope, field, tempdir, outdir)
 
             # Remove image files without corresponding prod file
             images, prods = match_image_prod(allimages, allprods, telescope, field)
@@ -120,8 +113,13 @@ class Coaddition(pas.PipelineAlg):
         os.chdir(preprocdir)
         os.system('{} -32 -e "coadd_all,{}"'.format(idl, files))
 
-        # Move coadds to coadd directory
+        # Make coadd directories
         coadddir = outdir + '/coadd/'
+        os.mkdir(coadddir)
+        os.mkdir(coadddir + '/image')
+        os.mkdir(coadddir + '/prod')
+
+        # Move coadds to coadd directory
         coadds = glob.glob('*000-000_c.fit')
         for c in coadds:
             os.replace(c, os.path.join(coadddir, 'image', c))
@@ -220,16 +218,19 @@ class Make_Subimages(pas.PipelineAlg):
 
         program   = kwargs['Program']
         telescope = kwargs['Telescope']
-        field     = kwargs['Field']
         ra        = kwargs['RA']
         dec       = kwargs['DEC']
         pixrad    = kwargs['PixelRadius']
-        outdir    = kwargs['outdir']
         tempdir   = kwargs['tempdir']
+        outdir    = kwargs['outdir']
 
-        return self.run_pa(program, telescope, field, ra, dec, pixrad, outdir, tempdir)
+        return self.run_pa(program, telescope, ra, dec, pixrad, tempdir, outdir)
 
-    def run_pa(self, program, telescope, field, ra, dec, pixrad, outdir, tempdir):
+    def run_pa(self, program, telescope, ra, dec, pixrad, tempdir, outdir):
+        if program == 'supernova':
+            from rotseproc.io.supernova import find_reference_image
+            find_reference_image(telescope, tempdir, outdir)
+
         # Make subimages
         idl = "singularity run --bind /scratch /hpc/applications/idl/idl_8.0.simg"
         coadddir = outdir + '/coadd/'
