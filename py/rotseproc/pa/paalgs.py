@@ -188,9 +188,9 @@ class Source_Extraction(pas.PipelineAlg):
            # os.system('{} -32 -e "run_cal,{}"'.format(idl, [coadds[i]]))
 
         # Login to singularity and generate cobj files
-        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        log.info("Logging into singularity. Make cobj files!!!")
-        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        log.info("!!! Logging into singularity. Make cobj files !!!")
+        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         os.system(singularity)
 
         return

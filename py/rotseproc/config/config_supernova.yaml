@@ -3,7 +3,7 @@ name: ROTSE-III Survey
 Flavor: science
 Program: supernova
 # Heartbeat Period in seconds
-Period: 60.0
+Period: 600.0
 # Time out in seconds
 Timeout: 600.0
 # Pipeline algorithms with relevant QAs
