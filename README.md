@@ -37,5 +37,15 @@ Using these inputs, the pipeline runs the following processes:
 * **Make_Subimages**     : make images into smaller subimages around the supernova
 * **Image_Differencing** : perform image differencing using a template image
 * **Choose_Refstars**    : choose reference stars for photometry
-* **Photometry**         : so photometry on all images and produce a light curve
+* **Photometry**         : do photometry on all images and produce a light curve
+
+#### Outputs:
+
+* ```preproc```         : preprocessed images directory
+* ```coadd```           : coadded images directory
+* ```sub```             : subimages and differenced images directory
+* ```lightcurve.pdf```  : pdf showing supernova light curve
+* ```lightcurve.fits``` : fits file containing light curve data
+* ```countpix.json```   : example QA metric output
+* ```countpix.pdf```    : example QA plot
 
